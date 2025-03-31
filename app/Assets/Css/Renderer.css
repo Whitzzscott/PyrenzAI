@@ -1,0 +1,66 @@
+.italic-text {
+    color: #aaaaaa;
+    font-style: italic;
+  }
+  
+  .dark-text {
+    color: #ffffff;
+    font-weight: bold;
+  }
+  .italic-text {
+    color: #aaaaaa;
+    font-style: italic;
+  }
+  
+  .dark-text {
+    color: #ffffff;
+    font-weight: bold;
+  }
+  
+  .bold-text {
+    font-weight: bold;
+    color: #ffffff;
+  }
+  
+  .underline-text {
+    text-decoration: underline;
+    color: #aaaaaa;
+  }
+  
+  .strikethrough-text {
+    text-decoration: line-through;
+    color: #888888;
+  }
+  
+  .link-text {
+    color: #1e90ff;
+    text-decoration: none;
+  }
+  
+  .link-text:hover {
+    text-decoration: underline;
+  }
+  
+  .code-text {
+    background-color: #2d2d2d;
+    color: #dcdcdc;
+    font-family: "Courier New", Courier, monospace;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+  }
+  
+  .blockquote {
+    border-left: 4px solid #cccccc;
+    padding-left: 1em;
+    color: #888888;
+    font-style: italic;
+  }
+  
+  .list-item {
+    margin-bottom: 0.5em;
+  }
+  
+  .list-item-number {
+    color: #dcdcdc;
+  }
+    
