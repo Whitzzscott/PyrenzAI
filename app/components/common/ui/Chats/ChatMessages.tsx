@@ -53,7 +53,7 @@ export default function ChatMessages({
     <div className="space-y-4 p-4 max-w-2xl mx-auto">
       {previous_message.map((msg, index) => {
         const isUser = msg.type === "user";
-        const displayName = isUser ? msg.user_name : msg.char_name || msg.name || "Anon";
+        const displayName = isUser ? msg.user_name : msg.name || "Anon";
         const icon = msg.icon || `https://api.dicebear.com/9.x/adventurer/svg?seed=${msg.name?.split('@')[0] || 'Anon'}`;
 
         return (
@@ -71,9 +71,12 @@ export default function ChatMessages({
             <div
               className={`flex flex-col max-w-md p-3 rounded-lg shadow-md ${isUser ? "bg-blue-600 text-white" : "bg-gray-700 text-white"}`}
             >
-              {isGenerating && !isUser && <TypingIndicator />}
-              {!isGenerating && !isUser && <span className="block font-semibold">{displayName}</span>}
-              <CustomMarkdown text={msg.text} char={msg.char_name || "Anon"} user={msg.user_name || "User"} />
+              {isGenerating && !isUser && index === previous_message.length - 1 && <TypingIndicator />}
+              <CustomMarkdown
+                text={msg.text}
+                user={msg.user_name || "User"}
+                char={msg.char_name || "Anon"}
+              />
             </div>
 
             {isUser && (
