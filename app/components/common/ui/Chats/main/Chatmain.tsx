@@ -22,7 +22,7 @@ export default function ChatMain({
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-[60px] sm:pb-4">
+      <div className="flex-1 overflow-y-auto pb-[60px] lg:pb-[80px] xl:pb-[80px]">
         <ChatMessages 
           previous_message={previous_message} 
           role="assistant" 

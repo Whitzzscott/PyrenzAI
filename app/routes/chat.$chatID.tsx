@@ -141,7 +141,7 @@ export default function ChatPage() {
 
       <div className="flex-1 w-full overflow-y-auto scrollbar-transparent">
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-full space-y-4">
+          <div className="flex flex-col items-center justify-center h-screen">
             <SkeletonMessage />
           </div>
         ) : error ? (
