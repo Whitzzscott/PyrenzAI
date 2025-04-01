@@ -1,8 +1,8 @@
 import { MessageSquare, Share2, ThumbsUp } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Card, CardContent } from '~/components/Component';
+import { Card, CardContent } from '~/components';
 import { CharacterCardProps } from '~/components/Types/CharacterCardPropsTypes';
-import { CharacterCardModal } from '~/components/Component';
+import { CharacterCardModal } from '~/components';
 
 export default function CharacterCard({
   id,

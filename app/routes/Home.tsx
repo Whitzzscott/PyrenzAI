@@ -7,12 +7,11 @@ import {
   CharacterCard,
   Pagination,
   Footer,
-} from "~/components/Component";
+} from "~/components";
 import { Sparkles } from "lucide-react";
 import { Utils } from "~/Utility/Utility";
-import { CustomButton } from "../components/Component";
-import { SkeletonCard } from "../components/Component";
-import { useScreenSize } from "~/components/hooks/useScreenSize";
+import { CustomButton, SkeletonCard } from "~/components";
+import { create } from "zustand";
 
 interface Character {
   id: number;
@@ -31,23 +30,58 @@ interface GetCharactersResponse {
   total: number;
 }
 
+interface StoreState {
+  search: string;
+  currentPage: number;
+  characters: Character[];
+  total: number;
+  loading: boolean;
+  setSearch: (search: string) => void;
+  setCurrentPage: (page: number) => void;
+  setCharacters: (characters: Character[]) => void;
+  setTotal: (total: number) => void;
+  setLoading: (loading: boolean) => void;
+}
+
+const useStore = create<StoreState>((set) => ({
+  search: "",
+  currentPage: 1,
+  characters: [],
+  total: 0,
+  loading: true,
+  setSearch: (search) => set({ search }),
+  setCurrentPage: (page) => set({ currentPage: page }),
+  setCharacters: (characters) => set({ characters }),
+  setTotal: (total) => set({ total }),
+  setLoading: (loading) => set({ loading }),
+}));
+
 export default function Home() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const {
+    search,
+    currentPage,
+    characters,
+    total,
+    loading,
+    setSearch,
+    setCurrentPage,
+    setCharacters,
+    setTotal,
+    setLoading,
+  } = useStore();
+
   const [isClient, setIsClient] = useState(false);
-  const { isMobile } = useScreenSize(); 
-  const [search, setSearch] = useState<string>(searchParams.get("search") || "");
-  const [currentPage, setCurrentPage] = useState<number>(Number(searchParams.get("page")) || 1);
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [total, setTotal] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(true);
 
   const itemsPerPage = 10;
   const totalPages = Math.max(1, Math.ceil(total / itemsPerPage));
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+    setSearch(searchParams.get("search") || "");
+    setCurrentPage(Number(searchParams.get("page")) || 1);
+  }, [searchParams, setSearch, setCurrentPage]);
 
   const fetchCharacters = useCallback(async () => {
     setLoading(true);
@@ -69,7 +103,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, search]);
+  }, [currentPage, search, setCharacters, setTotal, setLoading]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -112,7 +146,7 @@ export default function Home() {
           <Pagination currentPage={currentPage} totalPages={totalPages} itemsPerPage={itemsPerPage} />
         </div>
       </div>
-      {isClient && !isMobile && <Footer />}
+      {isClient && <Footer />}
     </div>
   );
 }

@@ -1,13 +1,12 @@
 import { useState, useEffect, useRef, Suspense } from "react";
 import { useParams } from "@remix-run/react";
-import { ChatMain } from "~/components/Component";
+import { ChatMain } from "~/components";
 import { Message, ChatContainerProps, GenerateResponse } from "~/components/types/chatTypes";
 import { Utils } from "~/Utility/Utility";
 
 export default function ChatContainer({
   user,
   char,
-  isDesktop,
   firstMessage,
   onSend,
   previous_message = [],
@@ -31,13 +30,7 @@ export default function ChatContainer({
   useEffect(() => {
     const firstMsg: Message | null =
       char && firstMessage
-        ? {
-            name: char.name ?? "Unknown",
-            text: firstMessage,
-            icon: char.icon ?? "",
-            type: "assistant",
-            isFirst: true,
-          }
+        ? { name: char.name ?? "Unknown", text: firstMessage, icon: char.icon ?? "", type: "assistant", isFirst: true }
         : null;
 
     setMessages(firstMsg ? [firstMsg, ...previous_message] : [...previous_message]);
@@ -46,20 +39,8 @@ export default function ChatContainer({
   const handleSend = async (text: string) => {
     if (!user || !char || !chatID) return;
 
-    const userMessage: Message = {
-      name: user.name ?? "User",
-      text,
-      icon: user.icon ?? "",
-      type: "user",
-    };
-
-    const assistantMessage: Message = {
-      name: char.name ?? "Assistant",
-      text: "",
-      icon: charIcon,
-      type: "assistant",
-      isGenerate: true,
-    };
+    const userMessage: Message = { name: user.name ?? "User", text, icon: user.icon ?? "", type: "user" };
+    const assistantMessage: Message = { name: char.name ?? "Assistant", text: "", icon: charIcon, type: "assistant", isGenerate: true };
 
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
     setLoading(true);
@@ -76,14 +57,13 @@ export default function ChatContainer({
       if (!response?.data?.content) throw new Error("No valid response from API");
 
       const messageText = response.data.content;
+
       const firstId = response.id?.[0];
       const charId = firstId?.charMessageUuid ?? null;
       const userId = firstId?.userMessageUuid ?? null;
       if (charId && userId) messageIdRef.current = { charId, userId };
 
-      setMessages((prev) =>
-        prev.map((msg) => (msg.isGenerate ? { ...msg, text: messageText, isGenerate: false } : msg))
-      );
+      setMessages((prev) => prev.map((msg) => (msg.isGenerate ? { ...msg, text: messageText, isGenerate: false } : msg)));
     } catch (error) {
       console.error("Failed to send message:", error);
     } finally {
@@ -96,7 +76,6 @@ export default function ChatContainer({
       <ChatMain
         user={user}
         char={char}
-        isDesktop={isDesktop}
         previous_message={messages}
         isGenerating={loading}
         messageIdRef={messageIdRef}

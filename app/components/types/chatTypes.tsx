@@ -28,15 +28,17 @@ export interface Character extends User {
 
 export interface ChatContainerProps {
   user: User | null;
-  char?: Partial<Character>;  
-  isDesktop: boolean;
+  char?: Partial<Character>;
   firstMessage: string | null;
   onSend: (message: string) => void;
-  previous_message?: Message[]; // ✅ Added to match the component usage
-  isGenerating?: boolean;       // ✅ Optional flag for loading state
+  previous_message?: Message[];
+  isGenerating?: boolean;
   handleSend?: (text: string) => Promise<void>;
-  messageIdRef?: MutableRefObject<any>;
-  messagesEndRef?: RefObject<any>;
+  messageIdRef?: MutableRefObject<{
+    charId: string | null;
+    userId: string | null;
+  } | null>;
+  messagesEndRef?: RefObject<HTMLDivElement>;
 }
 
 export interface GenerateResponse {

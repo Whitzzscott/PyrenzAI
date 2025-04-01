@@ -1,34 +1,66 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "@remix-run/react";
 import { motion } from "framer-motion";
-import { Sidebar } from "~/components/Component";
-import { DesktopSidebar } from "~/components/Component";
-import { ChatContainer } from "~/components/Component";
-import { EmptyContent } from "~/components/Component";
-import { SkeletonMessage } from "~/components/Component";
+import { create } from "zustand";
+import { Sidebar, DesktopSidebar, ChatContainer, EmptyContent, SkeletonMessage } from "~/components";
 import { Utils } from "~/Utility/Utility";
 import { User, Character, Message } from "~/components/types/chatTypes";
-import { useIsDesktop } from "~/components/hooks/useIsDesktop";
+
+interface ChatState {
+  user: User | null;
+  char: Character | null;
+  firstMessage: string | null;
+  error: string | null;
+  loading: boolean;
+  previousMessages: Message[];
+  setUser: (user: User) => void;
+  setChar: (char: Character) => void;
+  setFirstMessage: (message: string | null) => void;
+  setError: (error: string | null) => void;
+  setLoading: (loading: boolean) => void;
+  setPreviousMessages: (messages: Message[]) => void;
+}
+
+const useChatStore = create<ChatState>((set) => ({
+  user: null,
+  char: null,
+  firstMessage: null,
+  error: null,
+  loading: true,
+  previousMessages: [],
+  setUser: (user) => set({ user }),
+  setChar: (char) => set({ char }),
+  setFirstMessage: (message) => set({ firstMessage: message }),
+  setError: (error) => set({ error }),
+  setLoading: (loading) => set({ loading }),
+  setPreviousMessages: (messages) => set((state) => ({ previousMessages: [...state.previousMessages, ...messages] })),
+}));
 
 export default function ChatPage() {
   const { chatID } = useParams<{ chatID: string }>();
-  const isDesktop = useIsDesktop();
-  
-  const [user, setUser] = useState<User | null>(null);
-  const [char, setChar] = useState<Character | null>(null);
-  const [firstMessage, setFirstMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [previousMessages, setPreviousMessages] = useState<Message[]>([]);
-  
+  const {
+    user,
+    char,
+    firstMessage,
+    error,
+    loading,
+    previousMessages,
+    setUser,
+    setChar,
+    setFirstMessage,
+    setError,
+    setLoading,
+    setPreviousMessages,
+  } = useChatStore();
+
   const hasFetchedData = useRef(false);
   const hasSentMessage = useRef(false);
 
   useEffect(() => {
     const storedUserName = localStorage.getItem("User_Name") || "Anon";
-    const storedUserImage = localStorage.getItem("User_Image") 
-      || `https://api.dicebear.com/8.x/avataaars/svg?seed=${storedUserName.split("@")[0] || "UnknownUser"}`;
-
+    const storedUserImage =
+      localStorage.getItem("User_Image") ||
+      `https://api.dicebear.com/8.x/avataaars/svg?seed=${storedUserName.split("@")[0] || "UnknownUser"}`;
     setUser({ name: storedUserName, user_name: storedUserName, icon: storedUserImage });
   }, []);
 
@@ -66,7 +98,7 @@ export default function ChatPage() {
             ].filter(Boolean) as Message[];
           });
 
-          setPreviousMessages((prev) => [...prev, ...formattedMessages]);
+          setPreviousMessages(formattedMessages);
         }
       } catch (error) {
         console.error(error);
@@ -101,9 +133,11 @@ export default function ChatPage() {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="flex min-h-screen w-full text-white bg-gray-900"
     >
-      {isDesktop && <Sidebar />}
-      {isDesktop && char && <DesktopSidebar profilePic={char.image_url} safeName={char.name} />}
-      {isDesktop && <EmptyContent />}
+      <div className="hidden lg:block">
+        <Sidebar />
+        {char && <DesktopSidebar profilePic={char.image_url} safeName={char.name} />}
+        <EmptyContent />
+      </div>
 
       <div className="flex-1 w-full overflow-y-auto scrollbar-transparent">
         {loading ? (
@@ -116,7 +150,6 @@ export default function ChatPage() {
           <ChatContainer
             user={user}
             char={{ name: char?.name || "Unknown", icon: char?.image_url || "" }}
-            isDesktop={isDesktop}
             firstMessage={firstMessage}
             onSend={handleSend}
             previous_message={previousMessages}

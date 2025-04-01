@@ -15,6 +15,7 @@ import SettingsSidebar from '~/components/layout/Sidebar/SettingsSidebar';
 import ChatContainer from '~/components/common/ui/Chats/Container/ChatContainer';
 import EmptyContent from '~/components/common/ui/Chats/menu/PreviousMessageContainer';
 import Menu from '~/components/common/ui/Chats/menu/Menu';
+import ChatMain  from "~/components/common/ui/Chats/main/Chatmain";
 
 // UI Components
 import CharacterCard from '~/components/common/ui/Cards/CharacterCard';
@@ -56,6 +57,7 @@ export {
   ChatContainer,
   EmptyContent,
   Menu,
+  ChatMain,
 
   // UI
   CharacterCard,

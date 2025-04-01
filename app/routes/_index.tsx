@@ -1,15 +1,15 @@
 import { MetaFunction } from '@remix-run/node';
 import { useState, useEffect } from 'react';
-import { PreviewHeader } from '~/components/Component';
-import { PreviewFooter as Footer } from '~/components/Component';
-import { LoginModal } from '~/components/Component';
-import { RegisterModal } from '~/components/Component';
+import { PreviewHeader } from '~/components';
+import { PreviewFooter as Footer } from '~/components';
+import { LoginModal } from '~/components';
+import { RegisterModal } from '~/components';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from '~/components/Component';
+} from '~/components';
 import '~/Assets/Css/Preview.css';
 import '~/Assets/Fonts/BalooDa2-Regular.ttf';
 

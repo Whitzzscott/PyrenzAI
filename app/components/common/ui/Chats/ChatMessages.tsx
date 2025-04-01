@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import TypingIndicator from "../Indicator/TypingIndicator";
 import CustomMarkdown from "../Markdown/CustomMarkdown";
 
@@ -15,36 +15,34 @@ interface Message {
 
 interface ChatMessagesProps {
   previous_message: Message[];
-  is_generating: boolean;
-  isDesktop?: boolean;
+  isGenerating?: boolean;
   messageId?: string | null;
   token?: number | null;
   role?: string | null;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({
+export default function ChatMessages({
   previous_message,
-  is_generating,
-  isDesktop = false,
+  isGenerating,
   messageId,
   token,
   role,
-}) => {
+}: ChatMessagesProps) {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  if (!isClient) {
-    return <div className="text-gray-400 text-center">Loading messages...</div>;
+  if (!isClient || !previous_message.length) {
+    return null;
   }
 
   return (
     <div className="space-y-4 p-4 max-w-2xl mx-auto">
       {previous_message.map((msg, index) => {
         const isUser = msg.type === "user";
-        const displayName = isUser ? msg.user_name : msg.char_name || msg.name || "Unknown";
+        const displayName = isUser ? msg.user_name : msg.char_name || msg.name || "Anon";
 
         return (
           <div
@@ -58,26 +56,22 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
               <img src={msg.icon} alt={displayName} className="w-8 h-8 rounded-full mr-3" />
             )}
 
-            <div className={`max-w-md p-3 rounded-lg shadow-md ${isUser ? "bg-blue-600 text-white" : "bg-gray-700 text-white"}`}>
-              <span className="block font-semibold">{displayName}</span>
-              <CustomMarkdown text={msg.text} char={msg.char_name || "Unknown"} user={msg.user_name || "User"} />
+            <div
+              className={`flex flex-col max-w-md p-3 rounded-lg shadow-md ${isUser ? "bg-blue-600 text-white" : "bg-gray-700 text-white"}`}
+            >
+              {!isGenerating && !isUser && (
+                <span className="block font-semibold">{displayName}</span>
+              )}
+
+              {isGenerating && !isUser && <TypingIndicator />}
+
+              <CustomMarkdown text={msg.text} char={msg.char_name || "Anon"} user={msg.user_name || "User"} />
             </div>
 
             {isUser && msg.icon && <img src={msg.icon} alt={displayName} className="w-8 h-8 rounded-full ml-3" />}
           </div>
         );
       })}
-
-      {/* ✅ Show Typing Indicator when `is_generating` */}
-      {is_generating && (
-        <div className="flex items-start justify-start">
-          <div className="max-w-md p-3 rounded-lg shadow-md bg-gray-700 text-white">
-            <TypingIndicator />
-          </div>
-        </div>
-      )}
     </div>
   );
-};
-
-export default ChatMessages;
+}

@@ -1,19 +1,16 @@
-import React from 'react';
-
-const TypingIndicator: React.FC = () => {
+export default function TypingIndicator() {
   return (
     <div className="flex items-center space-x-1">
       {[0, 1, 2].map((i) => (
         <span
           key={i}
-          className="w-3 h-3 rounded-full animate-bounce dot"
+          className="w-3 h-3 rounded-full"
           style={{
-            animationDelay: `${i * 0.2}s`,
+            animation: `bounce 1.5s ease-in-out ${i * 0.2}s infinite`,
+            backgroundColor: 'white',
           }}
         />
       ))}
     </div>
   );
-};
-
-export default TypingIndicator;
+}

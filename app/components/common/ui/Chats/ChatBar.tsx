@@ -2,10 +2,9 @@ import { motion } from 'framer-motion'
 import { Settings, ChevronLeft } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import {SettingsSidebar} from '~/components/Component'
+import { SettingsSidebar } from '~/components'
 
 interface ChatbarProps {
-  isDesktop: boolean
   profilePic: string
   safeName: string
   setSettingsOpen: (open: boolean) => void
@@ -13,7 +12,6 @@ interface ChatbarProps {
 }
 
 export default function Chatbar({
-  isDesktop,
   profilePic,
   safeName,
   setSettingsOpen,
@@ -62,16 +60,15 @@ export default function Chatbar({
           </h1>
         </div>
 
-        {!isDesktop && (
-          <motion.button
-            onClick={handleSettingsOpen}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="p-2"
-          >
-            <Settings size={20} className="text-gray-300" />
-          </motion.button>
-        )}
+        {/* Only render settings button on mobile (sm: is for small screens, md: and larger are excluded) */}
+        <motion.button
+          onClick={handleSettingsOpen}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          className="p-2 block sm:hidden"
+        >
+          <Settings size={20} className="text-gray-300" />
+        </motion.button>
       </motion.div>
 
       {settingsOpen && (

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card } from '~/components/Component';
+import { Card } from '~/components';
 import backgroundtree from '../../../Assets/Images/BackgroundTree.png';
 
 export default function Banner() {

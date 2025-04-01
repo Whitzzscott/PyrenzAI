@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FaUserPlus } from 'react-icons/fa'; // Import the user icon with a plus sign
-import {ImageUploader} from '~/components/Component';
-import {CreateInputs} from '~/components/Component';
+import {ImageUploader} from '~/components';
+import {CreateInputs} from '~/components';
 
 const CreatePage: React.FC = () => {
   const [title, setTitle] = useState('');

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { FaDiscord } from 'react-icons/fa';
-import { Card, CardContent } from '~/components/Component';
+import { Card, CardContent } from '~/components';
 import HoldingGun from '../../../Assets/Images/Mascot-holdingGun.png';
 
 export default function Footer() {
