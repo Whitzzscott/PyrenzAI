@@ -7,27 +7,15 @@ interface ChatInputProps {
   className?: string;
   onSend?: (message: string, user: { name: string; icon: string }) => void;
   user: { name: string; icon: string };
+  char: { name: string };
 }
 
 const MAX_CHAR_LIMIT = 280;
 
-export default function ChatInput({ className, onSend, user }: ChatInputProps) {
+export default function ChatInput({ className, onSend, user, char }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isIPod, setIsIPod] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
-
-  useEffect(() => {
-    const checkDevice = () => {
-      const userAgent = navigator.userAgent.toLowerCase();
-      setIsMobile(window.innerWidth < 768);
-      setIsIPod(userAgent.includes("ipod") && !userAgent.includes("ipad"));
-    };
-    checkDevice();
-    window.addEventListener("resize", checkDevice);
-    return () => window.removeEventListener("resize", checkDevice);
-  }, []);
 
   const handleSend = () => {
     const trimmedMessage = message.trim();
@@ -42,13 +30,7 @@ export default function ChatInput({ className, onSend, user }: ChatInputProps) {
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className={`fixed bottom-4 mx-auto max-w-[640px] ${
-          isIPod
-            ? "left-[calc(22px-30px)] right-[16px]" // iPod (not Air) shifts 30px left
-            : isMobile
-            ? "left-[22px] right-[16px]" // Mobile (including iPod Air)
-            : "left-[calc(16px+223px)] right-[calc(16px-25px)]"
-        }`}
+        className={`relative mx-auto max-w-[640px] ${className}`}
       >
         <div className={`relative flex bg-gray-700 rounded-2xl p-3 ${className}`}>
           <motion.button
@@ -77,7 +59,7 @@ export default function ChatInput({ className, onSend, user }: ChatInputProps) {
                 handleSend();
               }
             }}
-            placeholder="Type a message..."
+            placeholder={`Chat with ${char.name}`}
             className="flex-1 w-full bg-transparent outline-none text-white px-4 py-2 rounded-full focus:ring-0 resize-none overflow-hidden min-w-0 max-w-full"
             rows={1}
           />

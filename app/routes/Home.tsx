@@ -9,11 +9,11 @@ import {
   Footer,
 } from "~/components";
 import { Sparkles } from "lucide-react";
-import { Utils } from "~/Utility/Utility";
 import { CustomButton, SkeletonCard } from "~/components";
-import { create } from "zustand";
+import { useHomeStore } from "~/store/HomeStore"; 
+import { supabase } from "~/Utility/supabaseClient"; 
 
-interface Character {
+ interface Character {
   id: number;
   name: string;
   description: string;
@@ -30,32 +30,6 @@ interface GetCharactersResponse {
   total: number;
 }
 
-interface StoreState {
-  search: string;
-  currentPage: number;
-  characters: Character[];
-  total: number;
-  loading: boolean;
-  setSearch: (search: string) => void;
-  setCurrentPage: (page: number) => void;
-  setCharacters: (characters: Character[]) => void;
-  setTotal: (total: number) => void;
-  setLoading: (loading: boolean) => void;
-}
-
-const useStore = create<StoreState>((set) => ({
-  search: "",
-  currentPage: 1,
-  characters: [],
-  total: 0,
-  loading: true,
-  setSearch: (search) => set({ search }),
-  setCurrentPage: (page) => set({ currentPage: page }),
-  setCharacters: (characters) => set({ characters }),
-  setTotal: (total) => set({ total }),
-  setLoading: (loading) => set({ loading }),
-}));
-
 export default function Home() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -65,12 +39,13 @@ export default function Home() {
     characters,
     total,
     loading,
+    bgImage,
     setSearch,
     setCurrentPage,
     setCharacters,
     setTotal,
     setLoading,
-  } = useStore();
+   } = useHomeStore();  
 
   const [isClient, setIsClient] = useState(false);
 
@@ -81,21 +56,28 @@ export default function Home() {
     setIsClient(true);
     setSearch(searchParams.get("search") || "");
     setCurrentPage(Number(searchParams.get("page")) || 1);
-  }, [searchParams, setSearch, setCurrentPage]);
+  }, [searchParams]);
 
   const fetchCharacters = useCallback(async () => {
+    const user_uuid = localStorage.getItem("user_uuid")
+
     setLoading(true);
     try {
-      const body = {
-        type: "character",
-        page: currentPage.toString(),
-        maxCharacters: itemsPerPage.toString(),
-        ...(search ? { search } : {}),
-      };
+      const { data, error } = await supabase.rpc('fetchcharacter', {
+        request_type: 'character',
+        page: currentPage,
+        max_characters: itemsPerPage,
+        search_term: search || null,
+        user_uuid_param: user_uuid   
+      });
+      
 
-      const data = await Utils.post<GetCharactersResponse>("/api/fetchCharacter", body);
-      setCharacters(data?.characters || []);
-      setTotal(data?.total || 0);
+      if (error) {
+        throw error;
+      }
+
+      setCharacters(data.characters || []);
+      setTotal(data.total || 0);
     } catch (error) {
       console.error("Error fetching characters:", error);
       setCharacters([]);
@@ -103,7 +85,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, search, setCharacters, setTotal, setLoading]);
+  }, [currentPage, search, itemsPerPage]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -115,9 +97,16 @@ export default function Home() {
   useEffect(() => {
     navigate(`?page=${currentPage}&search=${encodeURIComponent(search)}`, { replace: true });
   }, [currentPage, search, navigate]);
-
+  
   return (
-    <div className="flex flex-col bg-[#0F0F0F] min-h-screen text-white font-['Baloo Da 2']">
+    <div
+      className="flex flex-col bg-[#0F0F0F] min-h-screen text-white font-['Baloo Da 2']"
+      style={{
+        backgroundImage: bgImage ? `url(${bgImage})` : 'none',
+        backgroundSize: bgImage ? 'cover' : 'auto',
+        backgroundPosition: bgImage ? 'center' : 'unset'
+      }}
+    >
       <div className="flex flex-1">
         <Sidebar />
         <div className="p-6 flex-1 ml-20 sm:ml-16">

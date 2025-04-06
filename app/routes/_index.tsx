@@ -4,16 +4,19 @@ import { PreviewHeader } from '~/components';
 import { PreviewFooter as Footer } from '~/components';
 import { LoginModal } from '~/components';
 import { RegisterModal } from '~/components';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '~/components';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components';
 import '~/Assets/Css/Preview.css';
 import '~/Assets/Fonts/BalooDa2-Regular.ttf';
+import { Utils } from "~/Utility/Utility";
+import { supabase } from "~/Utility/supabaseClient";
 
- 
+interface AuthResponse {
+  success: boolean;
+  error?: string;
+  user_uuid?: string;
+  auth_key?: string;
+}
+
 export const meta: MetaFunction = () => [
   { title: 'Pyrenz AI - A Powerful AI Chat Application' },
 ];
@@ -24,18 +27,60 @@ export default function Preview() {
   const [hideHeader, setHideHeader] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem('sb-auth-token')) {
-      window.location.replace('/Home');
-      return;
+    const authToken = localStorage.getItem('sb-cqtbishpefnfvaxheyqu-auth-token');
+  
+    if (authToken) {
+      try {
+        const tokenData = JSON.parse(authToken);
+        const { refresh_token, user } = tokenData;
+        const { email, phone, last_sign_in_at, user_metadata } = user;
+        const { full_name, avatar_url } = user_metadata;
+  
+        const user_data = {
+          email,
+          full_name,
+          avatar_url,
+          phone,
+          last_sign_in_at,
+          refresh_token
+        };
+  
+         supabase.rpc('authorization', { user_data })
+          .then(({ data, error }) => {
+            if (error) {
+              console.error('Error during authentication:', error.message);
+              return;
+            }
+  
+            const authResponse = data as AuthResponse;
+            if (authResponse.success) {
+              if (authResponse.user_uuid && authResponse.auth_key) {
+                localStorage.setItem('user_uuid', authResponse.user_uuid);
+                localStorage.setItem('auth_key', authResponse.auth_key);
+                console.log('User UUID and Auth Key stored:', authResponse.user_uuid, authResponse.auth_key);
+              } else {
+                console.error('User UUID or Auth Key not provided in the response');
+              }
+            } else {
+              console.error('Authentication failed:', authResponse.error);
+            }
+          }); 
+  
+      } catch (error) {
+        console.error('Error parsing auth token:', error);
+      }
     }
-
+  
     const handleScroll = () => {
       setHideHeader(window.scrollY > window.innerHeight * 0.2);
     };
-
+  
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);  
+  
 
   return (
     <div className='min-h-screen flex flex-col font-[BalooDa2]'>

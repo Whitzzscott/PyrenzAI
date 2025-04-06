@@ -1,7 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import Cosmetic from "./MenuItem/Cosmetic"; // Import Cosmetic.tsx
+import Cosmetic from "./MenuItem/Cosmetic";
 
 interface MenuProps {
   onClose: () => void;
@@ -9,11 +9,10 @@ interface MenuProps {
 
 export default function Menu({ onClose }: MenuProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("Cosmetic"); // Default option
+  const [selectedOption, setSelectedOption] = useState("Cosmetic");
   const [bgImage, setBgImage] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load saved background from localStorage
     const savedBg = localStorage.getItem("bgImage");
     if (savedBg) {
       setBgImage(savedBg);

@@ -1,43 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useParams } from "@remix-run/react";
 import { motion } from "framer-motion";
-import { create } from "zustand";
-import { Sidebar, DesktopSidebar, ChatContainer, EmptyContent, SkeletonMessage } from "~/components";
+import { Sidebar, DesktopSidebar, ChatContainer, PreviousChat, SkeletonMessage } from "~/components";
 import { Utils } from "~/Utility/Utility";
+import { useChatStore } from "~/store/ChatStore";
 import { User, Character, Message } from "~/components/types/chatTypes";
-
-interface ChatState {
-  user: User | null;
-  char: Character | null;
-  firstMessage: string | null;
-  error: string | null;
-  loading: boolean;
-  previousMessages: Message[];
-  setUser: (user: User) => void;
-  setChar: (char: Character) => void;
-  setFirstMessage: (message: string | null) => void;
-  setError: (error: string | null) => void;
-  setLoading: (loading: boolean) => void;
-  setPreviousMessages: (messages: Message[]) => void;
-}
-
-const useChatStore = create<ChatState>((set) => ({
-  user: null,
-  char: null,
-  firstMessage: null,
-  error: null,
-  loading: true,
-  previousMessages: [],
-  setUser: (user) => set({ user }),
-  setChar: (char) => set({ char }),
-  setFirstMessage: (message) => set({ firstMessage: message }),
-  setError: (error) => set({ error }),
-  setLoading: (loading) => set({ loading }),
-  setPreviousMessages: (messages) => set((state) => ({ previousMessages: [...state.previousMessages, ...messages] })),
-}));
 
 export default function ChatPage() {
   const { chatID } = useParams<{ chatID: string }>();
+
   const {
     user,
     char,
@@ -58,23 +29,26 @@ export default function ChatPage() {
 
   useEffect(() => {
     const storedUserName = localStorage.getItem("User_Name") || "Anon";
-    const storedUserImage =
-      localStorage.getItem("User_Image") ||
-      `https://api.dicebear.com/8.x/avataaars/svg?seed=${storedUserName.split("@")[0] || "UnknownUser"}`;
-    setUser({ name: storedUserName, user_name: storedUserName, icon: storedUserImage });
-  }, []);
+    setUser({ name: storedUserName, user_name: storedUserName, icon: "" });
+  }, [setUser]);
 
   useEffect(() => {
     if (!chatID || hasFetchedData.current) return;
     hasFetchedData.current = true;
     setLoading(true);
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const characterId = urlParams.get('Character_Id');
+
     (async () => {
       try {
-        const { character } = await Utils.post<{ character: Character }>("/api/GetChatId", {
+        const payload = {
           type: "getchatid",
           chatID,
-        });
+          ...(characterId && { characterId })
+        };
+
+        const { character } = await Utils.post<{ character: Character }>("/api/GetChatId", payload);
 
         if (!character) throw new Error("Character not found");
 
@@ -89,7 +63,7 @@ export default function ChatPage() {
             return [
               msg.user_message &&
               !previousMessages.some((m) => m.text === msg.user_message)
-                ? { name: user?.name || "User", text: msg.user_message, icon: user?.icon || "", type: "user" }
+                ? { name: user?.name || "User", text: msg.user_message, icon: "", type: "user" }
                 : null,
               msg.ai_message &&
               !previousMessages.some((m) => m.text === msg.ai_message)
@@ -107,7 +81,7 @@ export default function ChatPage() {
         setLoading(false);
       }
     })();
-  }, [chatID, previousMessages, user]);
+  }, [chatID, previousMessages, user, setLoading, setChar, setFirstMessage, setPreviousMessages, setError]);
 
   const handleSend = (message: string) => {
     if (!hasSentMessage.current) {
@@ -133,13 +107,12 @@ export default function ChatPage() {
       transition={{ duration: 0.6, ease: "easeOut" }}
       className="flex min-h-screen w-full text-white bg-gray-900"
     >
-      <div className="hidden lg:block">
+      <aside className="hidden lg:flex flex-col w-64">
         <Sidebar />
         {char && <DesktopSidebar profilePic={char.image_url} safeName={char.name} />}
-        <EmptyContent />
-      </div>
+      </aside>
 
-      <div className="flex-1 w-full overflow-y-auto scrollbar-transparent">
+      <main className="flex-1 overflow-y-auto scrollbar-transparent">
         {loading ? (
           <div className="flex flex-col items-center justify-center h-screen">
             <SkeletonMessage />
@@ -155,7 +128,9 @@ export default function ChatPage() {
             previous_message={previousMessages}
           />
         )}
-      </div>
+      </main>
+
+      <PreviousChat />
     </motion.div>
   );
 }

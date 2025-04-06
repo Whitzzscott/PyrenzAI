@@ -1,3 +1,5 @@
+import { supabase } from '~/Utility/supabaseClient'
+
 type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE'
 
 export const Utils = {
@@ -21,8 +23,9 @@ export const Utils = {
       url.search = searchParams.toString()
     }
 
-    const token = localStorage.getItem('jwt-auth-token')
-    if (!token) {
+    const { data: { session }, error } = await supabase.auth.getSession()
+
+    if (error || !session) {
       console.warn('No authentication token found.')
     }
 
@@ -31,7 +34,7 @@ export const Utils = {
       headers: {
         'Content-Type': 'application/json',
         Accept: 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(session ? { Authorization: `Bearer ${session.access_token}` } : {}),
       },
     }
 

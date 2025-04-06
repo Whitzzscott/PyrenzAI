@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { create } from "zustand";
+import { useEffect } from 'react';
+import { useChatStore } from '~/Middleware/Middleware';
 import TypingIndicator from "../Indicator/TypingIndicator";
 import CustomMarkdown from "../Markdown/CustomMarkdown";
 
@@ -22,16 +22,6 @@ interface ChatMessagesProps {
   role?: string | null;
 }
 
-interface ChatStore {
-  isClient: boolean;
-  setIsClient: (status: boolean) => void;
-}
-
-const useChatStore = create<ChatStore>((set) => ({
-  isClient: false,
-  setIsClient: (status) => set({ isClient: status }),
-}));
-
 export default function ChatMessages({
   previous_message,
   isGenerating,
@@ -43,7 +33,7 @@ export default function ChatMessages({
 
   useEffect(() => {
     setIsClient(true);
-  }, []);
+  }, [setIsClient]);
 
   if (!isClient || !previous_message.length) {
     return null;
@@ -69,7 +59,7 @@ export default function ChatMessages({
             )}
 
             <div
-              className={`flex flex-col max-w-md p-3 rounded-lg shadow-md ${isUser ? "bg-blue-600 text-white" : "bg-gray-700 text-white"}`}
+              className={`flex flex-col max-w-md p-3 rounded-lg shadow-md ${isUser ? "bg-green-600 text-white" : "bg-gray-700 text-white"}`}
             >
               {isGenerating && !isUser && index === previous_message.length - 1 && <TypingIndicator />}
               <CustomMarkdown
