@@ -10,8 +10,8 @@ interface CheckboxFieldProps {
 
 export default function CheckboxField({ name, checked, onChange, label, ariaLabel }: CheckboxFieldProps) {
   return (
-    <div className="w-full flex items-center">
-      <div className="relative w-4 h-4 mr-2">
+    <div className="flex items-center space-x-2">
+      <div className="relative w-4 h-4">
         <input
           type="checkbox"
           name={name}

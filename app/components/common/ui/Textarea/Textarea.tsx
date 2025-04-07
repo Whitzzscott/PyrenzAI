@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import llamaTokenizer from 'llama-tokenizer-js';
+import { useCharacterStore } from '~/store/CreateStore';
 
 interface TextareaProps {
   name: string;
@@ -23,13 +24,30 @@ export default function Textarea({
   const maxLength = 15000;
   const characterCount = value.length;
   const isMaxLengthExceeded = characterCount > maxLength;
+  const setCharacterData = useCharacterStore((state) => state.setCharacterData);
+  const textareaTokens = useCharacterStore((state) => state.textareaTokens[name] || 0);
 
   useEffect(() => {
     if (showTokenizer) {
       const tokens = llamaTokenizer.encode(value);
-      setTokenCount(tokens.length);
+      const tokenLength = tokens.length;
+      setTokenCount(tokenLength);
+      setCharacterData({
+        textareaTokens: {
+          ...useCharacterStore.getState().textareaTokens,
+          [name]: tokenLength,
+        },
+      });
+    } else {
+      setTokenCount(0);
+      setCharacterData({
+        textareaTokens: {
+          ...useCharacterStore.getState().textareaTokens,
+          [name]: 0,
+        },
+      });
     }
-  }, [value, showTokenizer]);
+  }, [value, showTokenizer, setCharacterData, name]);
 
   return (
     <div className="w-full mb-4 relative">

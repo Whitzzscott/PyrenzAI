@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { ImageUploader, DropdownField, CheckboxField } from '~/components';
+import {
+  ImageUploader,
+  DropdownField,
+  CheckboxField,
+  CreateButton
+} from '~/components';
 import TextareaForm from './Childrens/TextareaForm';
-import InputFieldsForm from './Childrens/InputFieldsForm';
 import { useCharacterStore } from '~/store/CreateStore';
 import { supabase } from '~/Utility/supabaseClient';
 
@@ -15,6 +19,9 @@ interface CharacterData {
   tags: string;
   gender: string;
   is_public: boolean;
+  is_nsfw: boolean;
+  textareaTokens: { [key: string]: number }; 
+  TokenTotal: number;
 }
 
 export default function CharacterForm() {
@@ -23,9 +30,7 @@ export default function CharacterForm() {
   const characterData = useCharacterStore((state) => state);
   const setCharacterData = useCharacterStore((state) => state.setCharacterData);
 
-  const handleImageSelect = (file: File | null) => {
-    console.log('Selected file:', file);
-  };
+  const handleImageSelect = (file: File | null) => {};
 
   const genderOptions = [
     { value: 'male', label: 'Male' },
@@ -45,6 +50,22 @@ export default function CharacterForm() {
     } else {
       setCharacterData({ [name]: value });
     }
+  };
+
+  const handleClear = () => {
+    const emptyData: Omit<CharacterData, 'textareaTokens' | 'TokenTotal'> = {
+      persona: '',
+      name: '',
+      model_instructions: '',
+      scenario: '',
+      description: '',
+      first_message: '',
+      tags: '',
+      gender: '',
+      is_public: false,
+      is_nsfw: false,
+    };
+    setCharacterData({ ...emptyData, textareaTokens: {} });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,7 +112,6 @@ export default function CharacterForm() {
         className="bg-black p-8 rounded-lg shadow-lg w-full max-w-2xl space-y-6"
       >
         <ImageUploader onImageSelect={handleImageSelect} />
-        <InputFieldsForm formState={characterData} handleChange={handleChange} />
         <TextareaForm formState={characterData} handleChange={handleChange} />
         <DropdownField
           name="gender"
@@ -101,23 +121,39 @@ export default function CharacterForm() {
           options={genderOptions}
           ariaLabel="Gender"
         />
-        <div className="checkbox-gray-visibility">
+        <div className="flex flex-col space-y-2">
           <span className="text-gray-400">Visibility</span>
-          <CheckboxField
-            name="is_public"
-            checked={characterData.is_public}
-            onChange={(e) => handleChange({ target: { name: 'is_public', value: e.target.checked } } as any)}
-            label="Public"
-            ariaLabel="Public"
-          />
+          <div className="flex space-x-4">
+            <CheckboxField
+              name="is_public"
+              checked={characterData.is_public}
+              onChange={(e) => handleChange({ target: { name: 'is_public', value: e.target.checked } } as any)}
+              label="Public"
+              ariaLabel="Public"
+            />
+            <CheckboxField
+              name="is_nsfw"
+              checked={characterData.is_nsfw}
+              onChange={(e) => handleChange({ target: { name: 'is_nsfw', value: e.target.checked } } as any)}
+              label="NSFW"
+              ariaLabel="NSFW"
+            />
+          </div>
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-500 text-white p-3 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-        >
-          {loading ? 'Submitting...' : 'Submit'}
-        </button>
+        <div className="text-gray-400 mt-4">
+          <strong>Token Summary</strong>
+          <p>Total: {characterData.TokenTotal} Tokens</p>
+        </div>
+        <div className="flex justify-end space-x-2 mt-4">
+          <button
+            type="button"
+            onClick={handleClear}
+            className="text-white p-3 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+          >
+            Clear
+          </button>
+          <CreateButton loading={loading} />
+        </div>
       </form>
     </div>
   );

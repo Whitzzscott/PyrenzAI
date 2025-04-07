@@ -1,14 +1,15 @@
-// TextareaForm.tsx
 import React from 'react';
 import { Textarea } from '~/components';
 
 interface TextareaFormProps {
   formState: {
     persona: string;
+    name: string;
     model_instructions: string;
     scenario: string;
     description: string;
     first_message: string;
+    tags: string;
   };
   handleChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
@@ -22,6 +23,14 @@ export default function TextareaForm({ formState, handleChange }: TextareaFormPr
         onChange={handleChange}
         label="Persona"
         aria-label="Persona"
+        showTokenizer={true}
+      />
+      <Textarea
+        name="name"
+        value={formState.name}
+        onChange={handleChange}
+        label="Name"
+        aria-label="Name"
         showTokenizer={true}
       />
       <Textarea
@@ -55,6 +64,14 @@ export default function TextareaForm({ formState, handleChange }: TextareaFormPr
         label="First Message"
         aria-label="First Message"
         showTokenizer={true}
+      />
+      <Textarea
+        name="tags"
+        value={formState.tags}
+        onChange={handleChange}
+        label="Tags"
+        aria-label="Tags"
+        showTokenizer={false}
       />
     </>
   );
