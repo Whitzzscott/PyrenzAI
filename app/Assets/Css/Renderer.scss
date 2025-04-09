@@ -1,0 +1,62 @@
+$text-gray: #aaaaaa;
+$text-white: #ffffff;
+$text-mid: #888888;
+$text-blue: #1e90ff;
+$text-light: #dcdcdc;
+$bg-code: #2d2d2d;
+$border-blockquote: #cccccc;
+
+.text-styles {
+  .italic-text {
+    color: $text-gray;
+    font-style: italic;
+  }
+
+  .dark-text,
+  .bold-text {
+    color: $text-white;
+    font-weight: bold;
+  }
+
+  .underline-text {
+    text-decoration: underline;
+    color: $text-gray;
+  }
+
+  .strikethrough-text {
+    text-decoration: line-through;
+    color: $text-mid;
+  }
+
+  .link-text {
+    color: $text-blue;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .code-text {
+    background-color: $bg-code;
+    color: $text-light;
+    font-family: "Courier New", Courier, monospace;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+  }
+
+  .blockquote {
+    border-left: 4px solid $border-blockquote;
+    padding-left: 1em;
+    color: $text-mid;
+    font-style: italic;
+  }
+
+  .list-item {
+    margin-bottom: 0.5em;
+  }
+
+  .list-item-number {
+    color: $text-light;
+  }
+}

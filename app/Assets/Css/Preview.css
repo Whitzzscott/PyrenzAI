@@ -1,17 +1,15 @@
 @font-face {
-  font-family: 'BalooDa2';
-  src: url('../../assets/fonts/BalooDa2-Regular.ttf') format('truetype');
+  font-family: "BalooDa2";
+  src: url("../../assets/fonts/BalooDa2-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
 }
-
 @font-face {
-  font-family: 'Lato';
-  src: url('../../assets/fonts/Lato-Regular.ttf') format('truetype');
+  font-family: "Lato";
+  src: url("../../assets/fonts/Lato-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
-
 body {
   position: relative;
   width: 100vw;
@@ -19,12 +17,13 @@ body {
   margin: 0;
   display: flex;
   flex-direction: column;
-  background:
-    linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-    url('../../assets/images/BackgroundTree.png') no-repeat center center fixed;
+  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url("../../assets/images/BackgroundTree.png") no-repeat center center fixed;
   background-size: cover;
   overflow-y: auto;
   overflow-x: hidden;
+}
+body::-webkit-scrollbar {
+  display: none;
 }
 
 html,
@@ -37,8 +36,11 @@ body,
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
-
 html::-webkit-scrollbar,
-body::-webkit-scrollbar {
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar,
+.main::-webkit-scrollbar {
   display: none;
 }
+
+/*# sourceMappingURL=Preview.css.map */
