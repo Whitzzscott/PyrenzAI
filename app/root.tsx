@@ -9,7 +9,7 @@ import {
 import { useEffect, useState } from 'react'
 import { supabase } from '~/Utility/supabaseClient'
 import './Global.css'
-import UserStore from '~/store/UserStore'
+import { useUserStore as UserStore } from '~/store/UserStore'
 
 export const meta = () => [{ title: 'Pyrenz AI' }]
 

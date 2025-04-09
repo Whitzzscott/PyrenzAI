@@ -1,31 +1,31 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 interface UserState {
-  user_uuid: string | null
-  auth_key: string | null
-  captcha_uuid: string | null
-  captcha_expiration: number | null
-  setUserUUID: (uuid: string) => void
-  setAuthKey: (key: string) => void
-  setCaptcha: (token: string, expiration: number) => void
-  clearCaptcha: () => void
+  user_uuid: string | null;
+  auth_key: string | null;
+  captcha_uuid: string | null;
+  captcha_expiration: number | null;
+  setUserUUID: (uuid: string) => void;
+  setAuthKey: (key: string) => void;
+  setCaptcha: (token: string, expiration: number) => void;
+  clearCaptcha: () => void;
 }
 
 const customStorage = {
   getItem: (name: string): any => {
-    const storedValue = localStorage.getItem(name)
-    return storedValue ? JSON.parse(storedValue) : null
+    const storedValue = localStorage.getItem(name);
+    return storedValue ? JSON.parse(storedValue) : null;
   },
   setItem: (name: string, value: any) => {
-    localStorage.setItem(name, JSON.stringify(value))
+    localStorage.setItem(name, JSON.stringify(value));
   },
   removeItem: (name: string) => {
-    localStorage.removeItem(name)
+    localStorage.removeItem(name);
   }
-}
+};
 
-const UserStore = create<UserState>()(
+export const useUserStore = create<UserState>()(
   persist(
     (set) => ({
       user_uuid: null,
@@ -43,6 +43,4 @@ const UserStore = create<UserState>()(
       storage: customStorage
     }
   )
-)
-
-export default UserStore
+);

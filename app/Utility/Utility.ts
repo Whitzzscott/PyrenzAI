@@ -1,5 +1,5 @@
 import { supabase } from '~/Utility/supabaseClient';
-import UserStore from '~/store/UserStore';
+import { useUserStore as UserStore } from '~/store/UserStore';
 
 type RequestMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE';
 

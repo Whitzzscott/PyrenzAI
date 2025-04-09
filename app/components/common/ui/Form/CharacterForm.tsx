@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import {
-  ImageUploader,
-  DropdownField,
-  CheckboxField,
-  CreateButton
-} from '~/components';
-import TextareaForm from './Childrens/TextareaForm';
-import { useCharacterStore } from '~/store/CreateStore';
 import { Utils } from "~/Utility/Utility";
-import UserStore from "~/store/UserStore";
+import { useUserStore as UserStore } from "~/store/UserStore";
+import { useCharacterStore } from '~/store/CreateStore';
+import {
+  TextareaSection,
+  GenderDropdown,
+  VisibilityCheckboxes,
+  TokenSummary,
+  FormActions,
+  RequiredFieldsPopup,
+  ImageUpload
+} from '~/components';
 
 interface CharacterData {
   persona: string;
@@ -21,8 +23,8 @@ interface CharacterData {
   gender: string;
   is_public: boolean;
   is_nsfw: boolean;
-  textareaTokens: { [key: string]: number };
-  TokenTotal: number;
+  textarea_token: { [key: string]: number };
+  token_total: number;
 }
 
 interface ApiResponse {
@@ -57,12 +59,6 @@ export default function CharacterForm() {
 
   const handleImageSelect = (file: File | null) => {};
 
-  const genderOptions = [
-    { value: 'male', label: 'Male' },
-    { value: 'female', label: 'Female' },
-    { value: 'other', label: 'Other' },
-  ];
-
   const handleDropdownChange = (value: string) => {
     setCharacterData({ gender: value });
   };
@@ -78,7 +74,7 @@ export default function CharacterForm() {
   };
 
   const handleClear = () => {
-    const emptyData: Omit<CharacterData, 'textareaTokens' | 'TokenTotal'> = {
+    const emptyData: Omit<CharacterData, 'textarea_token' | 'token_total'> = {
       persona: '',
       name: '',
       model_instructions: '',
@@ -90,7 +86,7 @@ export default function CharacterForm() {
       is_public: false,
       is_nsfw: false,
     };
-    setCharacterData({ ...emptyData, textareaTokens: {} });
+    setCharacterData({ ...emptyData, textarea_token: {} });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -141,69 +137,22 @@ export default function CharacterForm() {
         onSubmit={handleSubmit}
         className="bg-black p-8 rounded-lg shadow-lg w-full max-w-2xl space-y-6"
       >
-        <ImageUploader onImageSelect={handleImageSelect} />
-        <TextareaForm formState={characterData} handleChange={handleChange} />
-        <DropdownField
-          name="gender"
-          value={characterData.gender}
-          onChange={handleDropdownChange}
-          label="Gender"
-          options={genderOptions}
-          ariaLabel="Gender"
+        <ImageUpload onImageSelect={handleImageSelect} />
+        <TextareaSection formState={characterData} handleChange={handleChange} />
+        <GenderDropdown value={characterData.gender} onChange={handleDropdownChange} />
+        <VisibilityCheckboxes
+          isPublic={characterData.is_public}
+          isNSFW={characterData.is_nsfw}
+          handleChange={handleChange}
         />
-        <div className="flex flex-col space-y-2">
-          <span className="text-gray-400">Visibility</span>
-          <div className="flex space-x-4">
-            <CheckboxField
-              name="is_public"
-              checked={characterData.is_public}
-              onChange={(e) => handleChange({ target: { name: 'is_public', value: e.target.checked } } as any)}
-              label="Public"
-              ariaLabel="Public"
-            />
-            <CheckboxField
-              name="is_nsfw"
-              checked={characterData.is_nsfw}
-              onChange={(e) => handleChange({ target: { name: 'is_nsfw', value: e.target.checked } } as any)}
-              label="NSFW"
-              ariaLabel="NSFW"
-            />
-          </div>
-        </div>
-        <div className="text-gray-400 mt-4">
-          <strong>Token Summary</strong>
-          <p>Total: {characterData.TokenTotal} Tokens</p>
-        </div>
-        <div className="flex justify-end space-x-2 mt-4">
-          <button
-            type="button"
-            onClick={handleClear}
-            className="text-white p-3 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
-          >
-            Clear
-          </button>
-          <CreateButton loading={loading} />
-        </div>
+        <TokenSummary tokenTotal={characterData.token_total} />
+        <FormActions onClear={handleClear} loading={loading} />
       </form>
       {showRequiredFieldsPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-black p-6 rounded-lg shadow-lg text-white flex flex-col">
-            <h2 className="text-lg font-semibold mb-4">Missing Required Fields</h2>
-            <ul className="list-disc list-inside mb-4 flex-grow">
-              {missingFields.map((field) => (
-                <li key={field}>{field}</li>
-              ))}
-            </ul>
-            <div className="flex justify-center">
-              <button
-                onClick={() => setShowRequiredFieldsPopup(false)}
-                className="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
+        <RequiredFieldsPopup
+          missingFields={missingFields}
+          onClose={() => setShowRequiredFieldsPopup(false)}
+        />
       )}
     </div>
   );

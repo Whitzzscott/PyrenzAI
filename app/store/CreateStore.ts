@@ -1,66 +1,51 @@
-import { create } from 'zustand'
-import { persist, PersistStorage, StorageValue } from 'zustand/middleware'
+import { create } from 'zustand';
 
 interface CharacterState {
-  persona: string
-  is_public: boolean
-  is_nsfw: boolean
-  name: string
-  model_instructions: string
-  scenario: string
-  description: string
-  first_message: string
-  tags: string
-  gender: string
-  textareaTokens: { [key: string]: number }
-  TokenTotal: number
-  setCharacterData: (data: Partial<CharacterState>) => void
+  persona: string;
+  is_public: boolean;
+  is_nsfw: boolean;
+  name: string;
+  model_instructions: string;
+  scenario: string;
+  description: string;
+  first_message: string;
+  tags: string;
+  gender: string;
+  textarea_token: { [key: string]: number }; 
+  token_total: number;
+  setCharacterData: (data: Partial<CharacterState>) => void;
 }
 
-const customStorage: PersistStorage<CharacterState> = {
-  getItem: (name) => {
-    const item = localStorage.getItem(name)
-    return item ? JSON.parse(item) as StorageValue<CharacterState> : null
+export const useCharacterStore = create<CharacterState>((set) => ({
+  persona: '',
+  is_public: false,
+  is_nsfw: false,
+  name: '',
+  model_instructions: '',
+  scenario: '',
+  description: '',
+  first_message: '',
+  tags: '',
+  gender: '',
+  textarea_token: { 
+    persona: 0,
+    name: 0,
+    model_instructions: 0,
+    scenario: 0,
+    description: 0,
+    first_message: 0,
+    tags: 0,
   },
-  setItem: (name, value) => {
-    localStorage.setItem(name, JSON.stringify(value))
-  },
-  removeItem: (name) => {
-    localStorage.removeItem(name)
-  }
-}
+  token_total: 0,
+  setCharacterData: (data) => set((state) => {
+    const newTextareaToken = { ...state.textarea_token, ...data.textarea_token };
+    const newTokenTotal = Object.values(newTextareaToken).reduce((a, b) => a + b, 0);
 
-export const useCharacterStore = create<CharacterState>()(
-  persist(
-    (set) => ({
-      persona: '',
-      is_public: false,
-      is_nsfw: false,
-      name: '',
-      model_instructions: '',
-      scenario: '',
-      description: '',
-      first_message: '',
-      tags: '',
-      gender: '',
-      textareaTokens: {},
-      TokenTotal: 0,
-      setCharacterData: (data) => set((state) => {
-        const newTextareaTokens = data.textareaTokens || state.textareaTokens
-        const newTokenTotal = Object.values(newTextareaTokens).reduce((a, b) => a + b, 0)
-
-        return {
-          ...state,
-          ...data,
-          textareaTokens: newTextareaTokens,
-          TokenTotal: newTokenTotal
-        }
-      })
-    }),
-    {
-      name: 'character-store',
-      storage: customStorage,
-      version: 1
-    }
-  )
-)
+    return {
+      ...state,
+      ...data,
+      textarea_token: newTextareaToken,
+      token_total: newTokenTotal,
+    };
+  }),
+}));

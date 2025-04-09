@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '~/Utility/supabaseClient';
-import UserStore from '~/store/UserStore';
+import { useUserStore as UserStore } from '~/store/UserStore';
 import { PreviewHeader, PreviewFooter as Footer, LoginModal, RegisterModal, Card, CardContent, CardHeader, CardTitle } from '~/components';
 import '~/Assets/Css/Preview.css';
 import '~/Assets/Fonts/BalooDa2-Regular.ttf';

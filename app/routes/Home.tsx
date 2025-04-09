@@ -7,11 +7,13 @@ import {
   CharacterCard,
   Pagination,
   Footer,
+  CustomButton,
+  SkeletonCard,
 } from "~/components";
 import { Sparkles } from "lucide-react";
-import { CustomButton, SkeletonCard } from "~/components";
 import { useHomeStore } from "~/store/HomeStore";
 import { supabase } from "~/Utility/supabaseClient";
+import { useUserStore } from "~/store/UserStore";
 
 interface Character {
   id: number;
@@ -23,11 +25,6 @@ interface Character {
   tags: string[];
   upvotes: number;
   downvotes: number;
-}
-
-interface GetCharactersResponse {
-  characters: Character[];
-  total: number;
 }
 
 export default function Home() {
@@ -47,6 +44,8 @@ export default function Home() {
     setLoading,
   } = useHomeStore();
 
+  const { user_uuid } = useUserStore();
+
   const [isClient, setIsClient] = useState(false);
 
   const itemsPerPage = 10;
@@ -59,23 +58,26 @@ export default function Home() {
   }, [searchParams]);
 
   const fetchCharacters = useCallback(async () => {
-    const user_uuid = localStorage.getItem("user_uuid");
-
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc('fetchcharacter', {
+      const { data, error } = await supabase.rpc('fetch_public_characters', {
         request_type: 'character',
         page: currentPage,
-        max_characters: itemsPerPage,
+        items_per_page: itemsPerPage,
         search_term: search || null,
-        user_uuid_param: user_uuid
+        user_param_uuid: user_uuid
       });
 
       if (error) {
         throw error;
       }
 
-      setCharacters(data.characters || []);
+      const formattedCharacters = data.characters.map((char: any) => ({
+        ...char,
+        image_url: char.profile_image
+      }));
+
+      setCharacters(formattedCharacters || []);
       setTotal(data.total || 0);
     } catch (error) {
       console.error("Error fetching characters:", error);
@@ -84,7 +86,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, search, itemsPerPage]);
+  }, [currentPage, search, itemsPerPage, user_uuid]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {

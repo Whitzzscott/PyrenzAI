@@ -4,7 +4,7 @@ import llamaTokenizer from 'llama-tokenizer-js';
 import { useCharacterStore } from '~/store/CreateStore';
 
 interface TextareaProps {
-  name?: string; 
+  name?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   label: string;
@@ -26,8 +26,8 @@ export default function Textarea({
   const maxLength = 15000;
   const characterCount = value.length;
   const isMaxLengthExceeded = characterCount > maxLength;
+
   const setCharacterData = useCharacterStore((state) => state.setCharacterData);
-  const textareaTokens = useCharacterStore((state) => state.textareaTokens[name || 'default'] || 0);
 
   useEffect(() => {
     if (showTokenizer) {
@@ -35,16 +35,16 @@ export default function Textarea({
       const tokenLength = tokens.length;
       setTokenCount(tokenLength);
       setCharacterData({
-        textareaTokens: {
-          ...useCharacterStore.getState().textareaTokens,
+        textarea_tokens: {
+          ...useCharacterStore.getState().textarea_tokens,
           [name || 'default']: tokenLength,
         },
       });
     } else {
       setTokenCount(0);
       setCharacterData({
-        textareaTokens: {
-          ...useCharacterStore.getState().textareaTokens,
+        textarea_tokens: {
+          ...useCharacterStore.getState().textarea_tokens,
           [name || 'default']: 0,
         },
       });
