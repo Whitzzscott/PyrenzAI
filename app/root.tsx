@@ -6,9 +6,10 @@ import {
   ScrollRestoration,
   useNavigate,
 } from '@remix-run/react'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '~/Utility/supabaseClient'
-import './tailwind.css'
+import './Global.css'
+import UserStore from '~/store/UserStore'
 
 export const meta = () => [{ title: 'Pyrenz AI' }]
 
@@ -16,10 +17,19 @@ export function Layout() {
   const [user, setUser] = useState<any>(null)
   const navigate = useNavigate()
 
+  const captchaUUID = UserStore((state) => state.captcha_uuid)
+  const [hydrated, setHydrated] = useState(false)
+
   useEffect(() => {
+    setHydrated(true)
+  }, [])
+
+ 
+  useEffect(() => {
+    if (!hydrated) return
+
     const authDataString = localStorage.getItem('sb-dojdyydsanxoblgjmzmq-auth-token')
     const hasRedirected = sessionStorage.getItem('hasRedirected')
-    const captchaUUID = localStorage.getItem('captcha_uuid')
     const isOnRoot = window.location.pathname === '/' && window.location.origin === 'http://localhost:5173'
 
     if (isOnRoot && !hasRedirected) {
@@ -43,7 +53,7 @@ export function Layout() {
 
         const { error } = await supabase.auth.setSession({
           access_token,
-          refresh_token,
+          refresh_token
         })
 
         if (error) throw error
@@ -60,18 +70,18 @@ export function Layout() {
     }
 
     handleSession()
-  }, [navigate])
-
+  }, [navigate, captchaUUID, hydrated])
+ 
   return (
-    <html lang='en' className='bg-black text-white'>
+    <html lang="en" className="bg-black text-white">
       <head>
-        <meta charSet='utf-8' />
-        <meta name='viewport' content='width=device-width, initial-scale=1' />
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        <link rel='icon' href='/favicon.ico' type='image/x-icon' />
+        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
       </head>
-      <body className='bg-black text-white'>
+      <body className="bg-black text-white">
         <Outlet context={{ user }} />
         <ScrollRestoration />
         <Scripts />
@@ -81,7 +91,6 @@ export function Layout() {
 }
 
 export default function App() {
-  console.log('App component rendered')
   return <Outlet />
 }
 

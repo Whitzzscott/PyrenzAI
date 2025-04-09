@@ -1,8 +1,20 @@
-import {
-  CharacterForm
-} from '~/components';  
+import { CharacterForm } from '~/components';
+import Sidebar from "~/components/layout/Sidebar/sidebar";
+import CommunityGuidelines from "~/components/layout/Sidebar/GuidelineSidebar";
 
 export default function CreatePage() {
-  return <CharacterForm />;
+  return (
+    <div className="flex flex-col md:flex-row">
+      <Sidebar />
+      <main className="flex-1">
+        <CharacterForm />
+        <div className="md:hidden">
+          <CommunityGuidelines className="mt-4" />
+        </div>
+      </main>
+      <div className="hidden md:block">
+        <CommunityGuidelines />
+      </div>
+    </div>
+  );
 }
-//Whitz 4-6-2025: Defined the CharacterForm. I had to separate each component for better readability and Easy Access Rather than compiling everything into one.

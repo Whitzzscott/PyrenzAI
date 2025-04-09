@@ -11,24 +11,28 @@ import DesktopSidebar from "~/components/layout/Sidebar/DesktopSidebar";
 import MobileSidebar from "~/components/layout/Sidebar/sidebar";
 import SettingsSidebar from "~/components/layout/Sidebar/SettingsSidebar";
 
-//CheckboxField
-import CheckboxField from "~/components/common/ui/Input/CheckBox"
+ 
+//Buttons
+import GenerateButton from "~/components/common/ui/Buttons/GenerateBtn"
+import CreateButton from "~/components/common/ui/Buttons/CreateBtn"
 
-//DropdownField
+//Fields
 import DropdownField from "~/components/common/ui/Dropdown/DropdownField"
+import CheckboxField from "~/components/common/ui/Input/CheckBox"
+import InputField from "~/components/common/ui/Input/InputField"
 
+  
 //Textrea
 import Textarea from "~/components/common/ui/Textarea/Textarea"
 
 //Image Uploader
 import ImageUploader from "~/components/common/ui/ImageUploader/ImageUploader"
 
-//Input
-import InputField from "~/components/common/ui/Input/InputField"
+//Dropzone
+import Dropzone from "~/components/common/ui/Dropzone/Dropzone"
 
-//CreateButton
-import CreateButton from "~/components/common/ui/Buttons/CreateButton"
-
+ 
+  
 // Chat Components
 import ChatContainer from "~/components/common/ui/Chats/Container/ChatContainer";
 import PreviousChat from "~/components/common/ui/Chats/menu/PreviousMessageContainer";
@@ -65,14 +69,20 @@ export {
   PreviewHeader,
   PreviewFooter,
 
-  //CheckboxField
+  //Fields
   CheckboxField,
-
-  //DropdownField
   DropdownField,
-  
-  //CreateButton
+
+
+  //Inputs
+  InputField,
+
+  //Buttons
+  GenerateButton,
   CreateButton,
+
+  //Dropzone
+  Dropzone,
 
   // Sidebar
   Sidebar,
@@ -80,11 +90,9 @@ export {
   MobileSidebar,
   SettingsSidebar,
 
-  //Textarea
+  //Textareas
   Textarea,
 
-  //Input
-  InputField,
 
   //Create 
   CharacterForm,

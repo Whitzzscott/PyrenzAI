@@ -7,7 +7,8 @@ import {
 } from '~/components';
 import TextareaForm from './Childrens/TextareaForm';
 import { useCharacterStore } from '~/store/CreateStore';
-import { supabase } from '~/Utility/supabaseClient';
+import { Utils } from "~/Utility/Utility";
+import UserStore from "~/store/UserStore";
 
 interface CharacterData {
   persona: string;
@@ -20,15 +21,39 @@ interface CharacterData {
   gender: string;
   is_public: boolean;
   is_nsfw: boolean;
-  textareaTokens: { [key: string]: number }; 
+  textareaTokens: { [key: string]: number };
   TokenTotal: number;
+}
+
+interface ApiResponse {
+  data?: any;
+  error?: any;
+}
+
+interface UserState {
+  user_uuid: string | null;
 }
 
 export default function CharacterForm() {
   const [loading, setLoading] = useState(false);
+  const [showRequiredFieldsPopup, setShowRequiredFieldsPopup] = useState(false);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
 
   const characterData = useCharacterStore((state) => state);
   const setCharacterData = useCharacterStore((state) => state.setCharacterData);
+
+  const user_uuid = UserStore((state: UserState) => state.user_uuid);
+
+  const requiredFields = [
+    'persona',
+    'name',
+    'model_instructions',
+    'scenario',
+    'description',
+    'first_message',
+    'tags',
+    'gender',
+  ];
 
   const handleImageSelect = (file: File | null) => {};
 
@@ -72,31 +97,36 @@ export default function CharacterForm() {
     e.preventDefault();
     setLoading(true);
 
-    const requiredFields = [
-      'persona',
-      'name',
-      'model_instructions',
-      'scenario',
-      'description',
-      'first_message',
-      'tags',
-      'gender',
-    ];
+    const missing = requiredFields.filter(field => !characterData[field as keyof CharacterData]);
 
-    for (const field of requiredFields) {
-      if (!characterData[field as keyof CharacterData]) {
-        alert(`Missing required item: ${field}`);
-        setLoading(false);
-        return;
-      }
+    if (missing.length > 0) {
+      setMissingFields(missing);
+      setShowRequiredFieldsPopup(true);
+      setLoading(false);
+      return;
+    }
+
+    const bannerImage = sessionStorage.getItem('Character_Create_Image_Banner');
+    const profileImage = sessionStorage.getItem('Character_Create_Image_Profile');
+
+    if (!bannerImage || !profileImage) {
+      alert('Missing required item: Images');
+      setLoading(false);
+      return;
     }
 
     try {
-      const { data, error } = await supabase.rpc('createcharacter', characterData);
-      if (error) {
-        console.error('Error creating character:', error);
+      const response: ApiResponse = await Utils.post('/api/createCharacter', {
+        ...characterData,
+        bannerImage,
+        profileImage,
+        input_user_uuid: user_uuid,
+      });
+
+      if (response.error) {
+        console.error('Error creating character:', response.error);
       } else {
-        console.log('Character created:', data);
+        console.log('Character created:', response.data);
       }
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -155,6 +185,26 @@ export default function CharacterForm() {
           <CreateButton loading={loading} />
         </div>
       </form>
+      {showRequiredFieldsPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-black p-6 rounded-lg shadow-lg text-white flex flex-col">
+            <h2 className="text-lg font-semibold mb-4">Missing Required Fields</h2>
+            <ul className="list-disc list-inside mb-4 flex-grow">
+              {missingFields.map((field) => (
+                <li key={field}>{field}</li>
+              ))}
+            </ul>
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowRequiredFieldsPopup(false)}
+                className="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

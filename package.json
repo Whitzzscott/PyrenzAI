@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "remix vite:dev",
+    "dev": "concurrently \"sass --watch app:app\" \"remix vite:dev\"",
     "lint": "eslint --ignore-path .gitignore --cache --cache-location ./node_modules/.cache/eslint .",
     "start": "remix-serve ./build/server/index.js",
     "typecheck": "tsc",
@@ -13,8 +13,6 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@chakra-ui/react": "^3.15.0",
-    "@clerk/remix": "^4.5.8",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fontsource/baloo-da-2": "^5.1.1",
@@ -39,6 +37,7 @@
     "axios": "^1.8.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "concurrently": "^9.1.2",
     "framer-motion": "^12.4.7",
     "fs": "^0.0.1-security",
     "install": "^0.13.0",

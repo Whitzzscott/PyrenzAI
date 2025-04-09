@@ -1,110 +1,151 @@
-import React, { useState } from 'react';
-import { useDropzone, Accept } from 'react-dropzone';
+import React, { useState, useEffect } from 'react';
+import { 
+  Dropzone,
+  GenerateButton, 
+  Textarea 
+} from "~/components";
+import { FaMagic } from 'react-icons/fa';
+import { Utils } from '~/Utility/Utility';
 
 interface ImageUploaderProps {
-  onImageSelect: (file: File | null) => void;
+  onImageSelect: (file: File | null, isAvatar: boolean) => void;
 }
 
-const UserIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className="text-white"
-    style={{ width: '2rem', height: '2rem' }}
-  >
-    <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
-    <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
-  </svg>
-);
+interface GenerateImageResponse {
+  ok: boolean;
+  image?: string;
+}
 
 export default function ImageUploader({ onImageSelect }: ImageUploaderProps) {
   const [bannerImagePreview, setBannerImagePreview] = useState<string | null>(null);
   const [avatarImagePreview, setAvatarImagePreview] = useState<string | null>(null);
+  const [prompt, setPrompt] = useState<string>('');
+  const [negativePrompt, setNegativePrompt] = useState<string>(
+    'blurry, low quality, low resolution, bad anatomy, extra fingers, mutated hands, deformed face, ugly, out of frame, poorly drawn'
+  );
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [loadingDots, setLoadingDots] = useState<string>('');
 
-  const onBannerDrop = (acceptedFiles: File[]) => {
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isGenerating) {
+      interval = setInterval(() => {
+        setLoadingDots((prevDots) => (prevDots.length >= 3 ? '' : prevDots + '.'));
+      }, 500);
+    }
+    return () => clearInterval(interval);
+  }, [isGenerating]);
+
+  const onDrop = (acceptedFiles: File[], isAvatar: boolean) => {
     const file = acceptedFiles[0] || null;
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setBannerImagePreview(reader.result as string);
+        if (isAvatar) {
+          setAvatarImagePreview(reader.result as string);
+          onImageSelect(file, true);
+        } else {
+          setBannerImagePreview(reader.result as string);
+          onImageSelect(file, false);
+        }
       };
       reader.readAsDataURL(file);
-    } else {
-      setBannerImagePreview(null);
-    }
-    onImageSelect(file);
-  };
-
-  const onAvatarDrop = (acceptedFiles: File[]) => {
-    const file = acceptedFiles[0] || null;
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setAvatarImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setAvatarImagePreview(null);
     }
   };
 
-  const { getRootProps: getBannerRootProps, getInputProps: getBannerInputProps, isDragActive: isBannerDragActive } = useDropzone({
-    onDrop: onBannerDrop,
-    accept: {
-      'image/*': ['.jpeg', '.png', '.gif'],
-    } as Accept,
-    multiple: false,
-  });
+  const handleGenerateImage = async () => {
+    if (!prompt.trim()) return;
 
-  const { getRootProps: getAvatarRootProps, getInputProps: getAvatarInputProps, isDragActive: isAvatarDragActive } = useDropzone({
-    onDrop: onAvatarDrop,
-    accept: {
-      'image/*': ['.jpeg', '.png', '.gif'],
-    } as Accept,
-    multiple: false,
-  });
+    setIsGenerating(true);
+    setGeneratedImageUrl(null);
+
+    const pollInterval = 1000;
+    const maxAttempts = 10;
+
+    const pollGenerateImage = async (attempts: number): Promise<void> => {
+      if (attempts <= 0) throw new Error('Maximum polling attempts reached');
+
+      try {
+        const response = await Utils.post('/api/GenerateImage', { prompt, negative_prompt: negativePrompt }) as GenerateImageResponse;
+
+        if (response.image) {
+          const decoded = `data:image/png;base64,${response.image}`;
+          setGeneratedImageUrl(decoded);
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, pollInterval));
+          await pollGenerateImage(attempts - 1);
+        }
+      } catch (error) {
+        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        await pollGenerateImage(attempts - 1);
+      }
+    };
+
+    try {
+      await pollGenerateImage(maxAttempts);
+    } finally {
+      setIsGenerating(false);
+      setLoadingDots('');
+    }
+  };
 
   return (
     <div className="w-full mb-4">
-      <div
-        {...getBannerRootProps()}
-        className={`relative p-6 flex flex-col items-center justify-center cursor-pointer rounded-lg transition-colors ${
-          isBannerDragActive ? 'bg-gray-700' : 'bg-gray-800'
-        } ${bannerImagePreview ? 'border-none' : 'border-dashed border-2 border-gray-500'}`}
-        style={{ height: '200px' }}
-      >
-        <input {...getBannerInputProps()} />
-        {bannerImagePreview ? (
-          <img
-            src={bannerImagePreview}
-            alt="Banner Preview"
-            className="absolute inset-0 w-full h-full rounded-lg object-cover"
-          />
-        ) : (
-          <>
-            <UserIcon />
-            <p className="text-white mt-2">Drop a banner image ;3</p>
-          </>
-        )}
-        <div
-          {...getAvatarRootProps()}
-          className={`absolute left-0 top-[130px] w-20 h-20 flex items-center justify-center cursor-pointer rounded-full transition-colors ${
-            isAvatarDragActive ? 'bg-gray-700' : 'bg-gray-800'
-          } ${avatarImagePreview ? 'border-none' : 'border-dashed border-2 border-gray-500'}`}
+      <Dropzone
+        onDrop={onDrop}
+        avatarImagePreview={avatarImagePreview}
+        bannerImagePreview={bannerImagePreview}
+        label="Drop an avatar or banner image ;3"
+        className="bg-gray-800 border-dashed border-2 border-gray-500"
+      />
+      <div className="flex mt-4">
+        <button
+          className="ml-auto flex items-center bg-blue-700 text-white px-4 py-2 rounded-lg hover:bg-blue-900 transition-colors"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          type="button"
         >
-          <input {...getAvatarInputProps()} />
-          {avatarImagePreview ? (
-            <img
-              src={avatarImagePreview}
-              alt="Avatar Preview"
-              className="w-full h-full rounded-full object-cover"
-            />
-          ) : (
-            <UserIcon />
-          )}
-        </div>
+          <FaMagic className="mr-2" />
+          Generate an image
+        </button>
       </div>
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+          onClick={() => setIsMenuOpen(false)}
+        >
+          <div
+            className="bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Textarea
+              label="Prompt"
+              placeholder="Enter your prompt here..."
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              showTokenizer={false}
+            />
+            <Textarea
+              label="Negative Prompt"
+              placeholder="Enter your negative prompt here..."
+              value={negativePrompt}
+              onChange={(e) => setNegativePrompt(e.target.value)}
+              showTokenizer={false}
+            />
+            <GenerateButton
+              isGenerating={isGenerating}
+              loadingDots={loadingDots}
+              onClick={handleGenerateImage}
+            />
+            {generatedImageUrl && (
+              <div className="mt-4">
+                <img src={generatedImageUrl} alt="Generated" className="w-full rounded-lg" />
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

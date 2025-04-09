@@ -4,12 +4,13 @@ import llamaTokenizer from 'llama-tokenizer-js';
 import { useCharacterStore } from '~/store/CreateStore';
 
 interface TextareaProps {
-  name: string;
+  name?: string; 
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   label: string;
   placeholder?: string;
   showTokenizer?: boolean;
+  className?: string;
 }
 
 export default function Textarea({
@@ -18,14 +19,15 @@ export default function Textarea({
   onChange,
   label,
   placeholder = '',
-  showTokenizer = false
+  showTokenizer = false,
+  className = ''
 }: TextareaProps) {
   const [tokenCount, setTokenCount] = useState(0);
   const maxLength = 15000;
   const characterCount = value.length;
   const isMaxLengthExceeded = characterCount > maxLength;
   const setCharacterData = useCharacterStore((state) => state.setCharacterData);
-  const textareaTokens = useCharacterStore((state) => state.textareaTokens[name] || 0);
+  const textareaTokens = useCharacterStore((state) => state.textareaTokens[name || 'default'] || 0);
 
   useEffect(() => {
     if (showTokenizer) {
@@ -35,7 +37,7 @@ export default function Textarea({
       setCharacterData({
         textareaTokens: {
           ...useCharacterStore.getState().textareaTokens,
-          [name]: tokenLength,
+          [name || 'default']: tokenLength,
         },
       });
     } else {
@@ -43,16 +45,18 @@ export default function Textarea({
       setCharacterData({
         textareaTokens: {
           ...useCharacterStore.getState().textareaTokens,
-          [name]: 0,
+          [name || 'default']: 0,
         },
       });
     }
   }, [value, showTokenizer, setCharacterData, name]);
 
+  const textareaId = name || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+
   return (
-    <div className="w-full mb-4 relative">
+    <div className={`w-full mb-4 relative ${className}`}>
       <div className="flex justify-between items-center mb-1">
-        <label htmlFor={name} className="text-white">
+        <label htmlFor={textareaId} className="text-white">
           {label}
         </label>
         {showTokenizer && (
@@ -70,7 +74,7 @@ export default function Textarea({
         )}
       </div>
       <textarea
-        id={name}
+        id={textareaId}
         name={name}
         value={value}
         onChange={onChange}

@@ -10,10 +10,10 @@ import {
 } from "~/components";
 import { Sparkles } from "lucide-react";
 import { CustomButton, SkeletonCard } from "~/components";
-import { useHomeStore } from "~/store/HomeStore"; 
-import { supabase } from "~/Utility/supabaseClient"; 
+import { useHomeStore } from "~/store/HomeStore";
+import { supabase } from "~/Utility/supabaseClient";
 
- interface Character {
+interface Character {
   id: number;
   name: string;
   description: string;
@@ -45,7 +45,7 @@ export default function Home() {
     setCharacters,
     setTotal,
     setLoading,
-   } = useHomeStore();  
+  } = useHomeStore();
 
   const [isClient, setIsClient] = useState(false);
 
@@ -59,7 +59,7 @@ export default function Home() {
   }, [searchParams]);
 
   const fetchCharacters = useCallback(async () => {
-    const user_uuid = localStorage.getItem("user_uuid")
+    const user_uuid = localStorage.getItem("user_uuid");
 
     setLoading(true);
     try {
@@ -68,9 +68,8 @@ export default function Home() {
         page: currentPage,
         max_characters: itemsPerPage,
         search_term: search || null,
-        user_uuid_param: user_uuid   
+        user_uuid_param: user_uuid
       });
-      
 
       if (error) {
         throw error;
@@ -97,7 +96,7 @@ export default function Home() {
   useEffect(() => {
     navigate(`?page=${currentPage}&search=${encodeURIComponent(search)}`, { replace: true });
   }, [currentPage, search, navigate]);
-  
+
   return (
     <div
       className="flex flex-col bg-[#0F0F0F] min-h-screen text-white font-['Baloo Da 2']"
@@ -108,8 +107,10 @@ export default function Home() {
       }}
     >
       <div className="flex flex-1">
-        <Sidebar />
-        <div className="p-6 flex-1 ml-20 sm:ml-16">
+        <div className="hidden sm:block sm:pl-[50px]">
+          <Sidebar />
+        </div>
+        <div className="p-6 flex-1">
           <Banner />
           <SearchBar search={search} setSearch={setSearch} setCurrentPage={setCurrentPage} />
           <h2 className="text-3xl font-extrabold mt-10 mb-4 text-blue-400 flex items-center">

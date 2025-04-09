@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import HCaptcha from '@hcaptcha/react-hcaptcha';
 import { useNavigate } from 'react-router-dom';
 import Background from '../Assets/Images/BackgroundTree.png';
+import UserStore from '../store/UserStore';
 
 export default function Auth() {
   const [isLoaded, setIsLoaded] = useState(false);
   const navigate = useNavigate();
+  const setCaptcha = UserStore((state) => state.setCaptcha);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -14,11 +16,8 @@ export default function Auth() {
   }, []);
 
   const handleCaptcha = (token: string) => {
-    localStorage.setItem('captcha_uuid', token);
-    localStorage.setItem(
-      'captcha_expiration',
-      (Date.now() + 2 * 60 * 1000).toString(),
-    );
+    const expiration = Date.now() + 2 * 60 * 1000;
+    setCaptcha(token, expiration);
     navigate('/#');
   };
 
