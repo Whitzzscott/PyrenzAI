@@ -1,0 +1,22 @@
+{
+  "name": "Pyrenz Ai",
+  "short_name": "Pyrenz",
+  "description": "A website for Pyrenz Ai",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#1a1a1a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/app/Assets/Images/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/app/Assets/Images/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
