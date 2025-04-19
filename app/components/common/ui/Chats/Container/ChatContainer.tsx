@@ -25,6 +25,7 @@ export default function ChatContainer({
   } | null>(null);
   const [charIcon, setCharIcon] = useState<string>(char?.icon ?? "");
   const { messages, setMessages } = useChatStore();
+  const [isGenerating, setIsGenerating] = useState<boolean>(false);
 
   useEffect(() => {
     if (!char?.icon || charIcon === char.icon) return;
@@ -42,7 +43,6 @@ export default function ChatContainer({
           text: firstMessage,
           icon: char.icon ?? "",
           type: "assistant",
-          isFirst: true,
         },
         ...previous_message,
       ]);
@@ -53,9 +53,9 @@ export default function ChatContainer({
     async (text: string) => {
       if (!user || !char || !chatID) return;
       const userMessage: Message = {
-        name: user.name ?? "User",
+        name: user.name,
         text,
-        icon: user.icon ?? "",
+        icon: user.icon,
         type: "user",
       };
       const assistantMessage: Message = {
@@ -67,6 +67,7 @@ export default function ChatContainer({
       };
       setMessages((prev) => [...prev, userMessage, assistantMessage]);
       onSend(text);
+      setIsGenerating(true);
       try {
         const response = await Utils.post<GenerateResponse>("/api/Generate", {
           Type: "Generate",
@@ -83,15 +84,10 @@ export default function ChatContainer({
           charId: firstId.charMessageUuid ?? null,
           userId: firstId.userMessageUuid ?? null,
         };
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.isGenerate
-              ? { ...msg, text: messageText, isGenerate: false }
-              : msg,
-          ),
-        );
       } catch (error) {
         console.error("Failed to send message:", error);
+      } finally {
+        setIsGenerating(false);
       }
     },
     [user, char, chatID, charIcon, setMessages, onSend],
@@ -106,7 +102,7 @@ export default function ChatContainer({
           user={user}
           char={char}
           previous_message={messages}
-          isGenerating={messages.some((msg) => msg.isGenerate)}
+          isGenerating={isGenerating}
           messageIdRef={messageIdRef}
           messagesEndRef={messagesEndRef}
           handleSend={handleSend}

@@ -1,6 +1,7 @@
 import { useNavigate, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 import { supabase } from "~/Utility/supabaseClient";
+import { motion } from "framer-motion";
 
 interface PaginationProps {
   currentPage: number;
@@ -49,18 +50,21 @@ export default function Pagination({
 
   return (
     <div className="flex justify-center items-center gap-2 mt-8">
-      <button
+      <motion.button
         onClick={handleLoadMore}
         disabled={isLoading || currentPage >= totalPages}
-        className={`px-4 py-2 rounded-full transition-all flex items-center justify-center ${
+        className={`px-4 py-2 rounded-full flex items-center justify-center ${
           isLoading || currentPage >= totalPages
             ? "bg-gray-700 opacity-50 cursor-not-allowed"
             : "bg-gray-800 hover:bg-gray-700"
         }`}
         aria-label="Load more items"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.3 }}
       >
         Load More
-      </button>
+      </motion.button>
     </div>
   );
 }

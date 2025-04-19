@@ -11,6 +11,9 @@ import DesktopSidebar from "~/components/layout/Sidebar/DesktopSidebar";
 import MobileSidebar from "~/components/layout/Sidebar/sidebar";
 import SettingsSidebar from "~/components/layout/Sidebar/SettingsSidebar";
 
+//Alert
+import { WindowAlert } from "~/components/common/ui/Alert/Alert";
+
 //Buttons
 import GenerateButton from "~/components/common/ui/Buttons/GenerateBtn";
 import CreateButton from "~/components/common/ui/Buttons/CreateBtn";
@@ -87,6 +90,9 @@ export {
   TextareaSection,
   ImageUpload,
 
+  //WindowAlert
+  WindowAlert,
+  
   // Chat
   ChatContainer,
   PreviousChat,

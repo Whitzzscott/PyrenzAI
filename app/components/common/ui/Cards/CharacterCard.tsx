@@ -1,5 +1,6 @@
 import { MessageSquare, Share2, Globe, Lock } from "lucide-react";
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "~/components";
 import { CharacterCardProps } from "~/components/types/CharacterCardPropsTypes";
 import { CharacterCardModal } from "~/components";
@@ -39,11 +40,12 @@ export default function CharacterCard({
 
   return (
     <>
-      <Card
+      <motion.div
         onClick={handleCardClick}
-        className={`w-full sm:w-56 min-h-[360px] rounded-xl shadow-lg border border-gray-600 bg-gray-900 text-white font-[Baloo_Da_2] overflow-hidden cursor-pointer
-        ${isLoaded ? "opacity-100 scale-100" : "opacity-0 scale-95"}
-        transition-all duration-[1500ms] ease-out`}
+        className="w-full sm:w-56 min-h-[360px] rounded-xl shadow-lg border border-gray-600 bg-gray-900 text-white font-[Baloo_Da_2] overflow-hidden cursor-pointer"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: isLoaded ? 1 : 0, scale: isLoaded ? 1 : 0.95 }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
         aria-label={`Character card for ${name}`}
       >
         <div className="relative w-full h-48">
@@ -100,7 +102,7 @@ export default function CharacterCard({
             </div>
 
             <div className="flex items-center ml-auto gap-2">
-              <button
+              <motion.button
                 onClick={(e) => {
                   e.stopPropagation();
                   navigator.clipboard.writeText(
@@ -109,13 +111,15 @@ export default function CharacterCard({
                 }}
                 className="flex items-center transition-colors duration-200 hover:text-blue-400"
                 aria-label={`Share ${name}`}
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.3 }}
               >
                 <Share2 size={16} />
-              </button>
+              </motion.button>
             </div>
           </div>
         </CardContent>
-      </Card>
+      </motion.div>
 
       {isModalOpen && modalData && (
         <CharacterCardModal

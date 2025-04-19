@@ -1,5 +1,29 @@
-node_modules
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+build/
 
-/.cache
-/build
+# Vite
+.vite/
+*.log
+
+# Remix
+remix.lock
+build/
+
+# Environment Files
 .env
+.env.local
+.env.*.local
+
+# IDE/Editor files
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log

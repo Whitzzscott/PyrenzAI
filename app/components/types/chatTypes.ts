@@ -11,9 +11,11 @@ export interface Message {
   isFirst?: boolean;
   token?: number | null;
   role?: string;
+  conversation_id?: string;
 }
 
 export interface User {
+  user_uuid: string; // Added user_uuid
   name: string;
   user_name: string;
   icon: string;

@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Card } from "~/components";
 import backgroundtree from "../../../Assets/Images/BackgroundTree.png";
 
 export default function Banner() {
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
-  const [hovering, setHovering] = useState(false);
   const [displayedText, setDisplayedText] = useState("");
   const [showCursor, setShowCursor] = useState(true);
   const fullText = "Pyrenz Ai";
@@ -55,43 +54,28 @@ export default function Banner() {
     return () => clearInterval(cursorBlink);
   }, []);
 
-  useEffect(() => {
-    const updateCursor = (e: MouseEvent) =>
-      setCursorPosition({ x: e.clientX, y: e.clientY });
-
-    document.addEventListener("mousemove", updateCursor);
-    return () => document.removeEventListener("mousemove", updateCursor);
-  }, []);
-
   return (
-    <Card
-      className="p-4 rounded-3xl mb-4 text-center transition-all duration-300 flex justify-center items-center h-[140px] font-[Baloo_Da_2] text-white border-none relative"
+    <motion.div
+      className="p-4 rounded-3xl mb-4 text-center flex justify-center items-center h-[140px] font-[Baloo_Da_2] text-white border-none relative"
       style={{
         backgroundImage: `url(${backgroundtree})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
     >
-      {hovering && (
-        <div
-          className="absolute w-20 h-20 bg-white opacity-20 rounded-full"
-          style={{
-            left: `${cursorPosition.x}px`,
-            top: `${cursorPosition.y}px`,
-            transform: "translate(-50%, -50%)",
-            filter: "blur(10px)",
-            mixBlendMode: "overlay",
-          }}
-        />
-      )}
       <h1 className="text-3xl font-bold relative z-10">
         {displayedText}
-        <span className={`ml-1 ${showCursor ? "opacity-100" : "opacity-0"}`}>
+        <motion.span
+          className="ml-1"
+          animate={{ opacity: showCursor ? 1 : 0 }}
+          transition={{ duration: 0.5, repeat: Infinity, repeatType: "loop" }}
+        >
           |
-        </span>
+        </motion.span>
       </h1>
-    </Card>
+    </motion.div>
   );
 }

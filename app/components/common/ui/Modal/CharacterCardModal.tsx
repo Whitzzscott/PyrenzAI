@@ -5,6 +5,8 @@ import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "@remix-run/react";
 import { Utils } from "~/Utility/Utility";
+import { useUserStore } from "~/store/UserStore";
+import { WindowAlert } from "~/components";
 
 interface CharacterCardModalProps {
   isOpen: boolean;
@@ -19,31 +21,42 @@ const CharacterCardModal: React.FC<CharacterCardModalProps> = ({
 }) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const { user_uuid, auth_key } = useUserStore();
 
   if (!character) return null;
 
   const handleChatNow = async () => {
     if (isLoading || !character?.id) return;
 
+    if (!user_uuid || !auth_key) {
+      WindowAlert("error", "Error: User is not logged in yet");
+      return;
+    }
+
     setIsLoading(true);
 
     const requestData = {
-      characterID: `${character.id}`,
+      type: "createchat",
+      character_uuid: character.id,
+      user_uuid,
+      auth_key,
     };
 
     try {
-      const response = await Utils.post<{ chatID: string }>(
-        "/api/chat-id",
+      const response = await Utils.post<{ chat_uuid: string }>(
+        "/api/Chats",
         requestData,
       );
 
-      if (response?.chatID) {
-        navigate(`/chat/${response.chatID}`);
+      if (response?.chat_uuid) {
+        navigate(`/chat/${response.chat_uuid}`);
       } else {
-        console.error("Failed to generate chatID");
+        console.error("Failed to generate chat_uuid");
+        WindowAlert("error", "Failed to generate chat_uuid");
       }
     } catch (error) {
-      console.error("Error generating chatID:", error);
+      console.error("Error generating chat_uuid:", error);
+      WindowAlert("error", "Error: User is not logged in yet");
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +73,7 @@ const CharacterCardModal: React.FC<CharacterCardModalProps> = ({
           exit={{ opacity: 0, transition: { duration: 0.4, ease: "easeOut" } }}
         >
           <motion.div
-            className="bg-gray-900 text-white p-6 rounded-2xl shadow-2xl w-11/12 sm:w-[400px] flex flex-col sm:flex-row items-start sm:items-center relative"
+            className="bg-gray-900 text-white p-6 rounded-2xl shadow-2xl flex flex-col sm:flex-row items-start sm:items-center relative"
             onClick={(e) => e.stopPropagation()}
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -94,7 +107,7 @@ const CharacterCardModal: React.FC<CharacterCardModalProps> = ({
 
               <div className="flex items-center mt-4 w-full">
                 <motion.button
-                  className={`flex-1 ${isLoading ? "bg-gray-600" : "bg-blue-600 hover:bg-blue-700"} text-white font-semibold py-2 px-6 rounded-lg transition-all duration-200`}
+                  className={`flex-1 ${isLoading ? "bg-gray-600" : "bg-blue-600 hover:bg-blue-700"} text-white font-semibold py-2 px-6 rounded-lg`}
                   onClick={handleChatNow}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -111,7 +124,7 @@ const CharacterCardModal: React.FC<CharacterCardModalProps> = ({
               <div className="mt-3 flex flex-wrap justify-start gap-2 w-full">
                 {character.public !== undefined && (
                   <motion.span
-                    className="bg-black text-white text-xs font-semibold py-1 px-3 rounded-full flex items-center gap-1 transition-transform duration-200 hover:scale-110"
+                    className="bg-black text-white text-xs font-semibold py-1 px-3 rounded-full flex items-center gap-1"
                     initial={{ opacity: 0, scale: 0.5 }}
                     animate={{
                       opacity: 1,
@@ -137,7 +150,7 @@ const CharacterCardModal: React.FC<CharacterCardModalProps> = ({
                   character.tags.map((tag, index) => (
                     <motion.span
                       key={index}
-                      className="bg-black text-white text-xs font-semibold py-1 px-3 rounded-full transition-transform duration-200 hover:scale-110"
+                      className="bg-black text-white text-xs font-semibold py-1 px-3 rounded-full"
                       initial={{ opacity: 0, scale: 0.5 }}
                       animate={{
                         opacity: 1,

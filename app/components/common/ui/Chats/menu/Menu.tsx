@@ -1,7 +1,10 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import Cosmetic from "./MenuItem/Cosmetic";
+import {
+  Customization,
+  Cosmetic
+} from "./MenuItem"
 
 interface MenuProps {
   onClose: () => void;
@@ -79,12 +82,24 @@ export default function Menu({ onClose }: MenuProps) {
                 >
                   Cosmetic
                 </button>
+                <button
+                  className="w-full px-4 py-2 text-left hover:bg-gray-600 transition duration-200"
+                  onClick={() => {
+                    setSelectedOption("AI Customization");
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  AI Customization
+                </button>
               </motion.div>
             )}
           </div>
 
           {selectedOption === "Cosmetic" && (
             <Cosmetic onBackgroundChange={applyBackground} />
+          )}
+          {selectedOption === "AI Customization" && (
+            <Customization />
           )}
         </motion.div>
       </motion.div>

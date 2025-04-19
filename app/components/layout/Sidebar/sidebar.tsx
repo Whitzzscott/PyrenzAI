@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { FaHome, FaUser, FaPlus, FaCog, FaComments } from "react-icons/fa";
 import { useNavigate } from "@remix-run/react";
 import { supabase } from "~/Utility/supabaseClient";
@@ -27,8 +28,11 @@ export default function Sidebar({ className }: { className?: string }) {
 
   return (
     <>
-      <div
+      <motion.div
         className={`hidden md:flex fixed top-0 left-0 h-screen w-16 bg-gray-900 text-white flex-col justify-between p-4 rounded-r-3xl shadow-lg z-50 ${className}`}
+        initial={{ x: -50, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
       >
         <div className="flex flex-col items-center gap-6">
           {menuItems.slice(0, 2).map((item) => (
@@ -84,9 +88,14 @@ export default function Sidebar({ className }: { className?: string }) {
             />
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      <div className="md:hidden fixed bottom-0 left-0 w-full bg-gray-900 text-white flex justify-around p-2 shadow-lg z-50">
+      <motion.div
+        className="md:hidden fixed bottom-0 left-0 w-full bg-gray-900 text-white flex justify-around p-2 shadow-lg z-50"
+        initial={{ y: 50, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         {menuItems.map((item) => (
           <MobileNavItem key={item.name} item={item} navigate={navigate} />
         ))}
@@ -112,37 +121,46 @@ export default function Sidebar({ className }: { className?: string }) {
             navigate={navigate}
           />
         )}
-      </div>
+      </motion.div>
     </>
   );
 }
 
 function SidebarItem({ item, hovered, setHovered, navigate }: any) {
   return (
-    <div
-      className="relative flex items-center justify-center w-12 h-12 rounded-lg hover:bg-gray-800 transition-all transform hover:scale-105 cursor-pointer"
+    <motion.div
+      className="relative flex items-center justify-center w-12 h-12 rounded-lg hover:bg-gray-800 cursor-pointer"
       onClick={() => navigate(item.path)}
       onMouseEnter={() => setHovered(item.name)}
       onMouseLeave={() => setHovered(null)}
+      whileHover={{ scale: 1.05 }}
+      transition={{ duration: 0.3 }}
     >
       {item.icon}
       {hovered === item.name && (
-        <div className="absolute left-14 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-1 rounded-lg text-xs shadow-md z-50 pointer-events-auto">
+        <motion.div
+          className="absolute left-14 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-1 rounded-lg text-xs shadow-md z-50 pointer-events-auto"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.3 }}
+        >
           {item.name}
-        </div>
+        </motion.div>
       )}
-    </div>
+    </motion.div>
   );
 }
 
 function MobileNavItem({ item, navigate }: any) {
   return (
-    <div
-      className="flex flex-col items-center cursor-pointer transform hover:scale-110 transition-transform"
+    <motion.div
+      className="flex flex-col items-center cursor-pointer"
       onClick={() => navigate(item.path)}
+      whileHover={{ scale: 1.1 }}
+      transition={{ duration: 0.3 }}
     >
       {item.icon}
       {item.name && <span className="text-xs">{item.name}</span>}
-    </div>
+    </motion.div>
   );
 }

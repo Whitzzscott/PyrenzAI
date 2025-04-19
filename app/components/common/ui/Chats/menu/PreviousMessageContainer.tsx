@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import SkeletonLoader from "~/components/common/ui/Skeleton/SkeletonPreviousMessage";
 import CryingMascot from "~/Assets/Images/MascotCrying.png";
 import { Utils } from "~/Utility/Utility";
+import { useUserStore } from "~/store/UserStore";
 
 interface Message {
   id: number;
@@ -19,18 +20,26 @@ export default function PreviousChat() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const { chatID } = useParams<{ chatID: string }>();
+  const { conversation_id } = useParams<{ conversation_id: string }>();
   const navigate = useNavigate();
+  const { user_uuid, auth_key } = useUserStore();
 
   useEffect(() => {
     const fetchPreviousChat = async () => {
+      if (!user_uuid || !auth_key || !conversation_id) {
+        setError(true);
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await Utils.post<Message[]>("/api/PreviousChat", {
+        const response = await Utils.post<Message[]>("/api/GetPreviousChat", {
+          user_uuid,
+          auth_key,
           page: 1,
-          order: "asc",
           limit: 32,
-          Type: "GetPreviousChatById",
-          conversationId: chatID,
+          Type: "GetPreviousChat",
+          conversation_id,
         });
 
         if (!response || !Array.isArray(response)) {
@@ -47,7 +56,7 @@ export default function PreviousChat() {
     };
 
     fetchPreviousChat();
-  }, [chatID]);
+  }, [conversation_id, user_uuid, auth_key]);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -59,15 +68,15 @@ export default function PreviousChat() {
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [chatID]);
+  }, [conversation_id]);
 
   const truncateMessage = (text: string, maxLength = 50) => {
     if (!text) return "No message content";
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
   };
 
-  const handleMessageClick = (conversationId: string) => {
-    navigate(`/chat/${conversationId}`);
+  const handleMessageClick = (conversation_id: string) => {
+    navigate(`/chat/${conversation_id}`);
     window.location.reload();
   };
 

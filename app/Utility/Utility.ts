@@ -6,6 +6,7 @@ type RequestMethod = "GET" | "POST" | "PATCH" | "DELETE";
 export const Utils = {
   TIMEOUT: 5000,
   BASE_URL: "http://localhost:1983",
+  abortControllers: new Map<string, AbortController>(),
 
   async request<T>(
     method: RequestMethod,
@@ -66,6 +67,14 @@ export const Utils = {
       }
     }
 
+    if (this.abortControllers.has(endpoint)) {
+      this.abortControllers.get(endpoint)?.abort();
+    }
+
+    const controller = new AbortController();
+    this.abortControllers.set(endpoint, controller);
+    options.signal = controller.signal;
+
     const fetchWithTimeout = (
       url: string,
       options: RequestInit,
@@ -112,6 +121,8 @@ export const Utils = {
     } catch (error) {
       console.error(`Request Failed - ${method} ${url}:`, error);
       throw error;
+    } finally {
+      this.abortControllers.delete(endpoint);
     }
   },
 
@@ -130,15 +141,6 @@ export const Utils = {
     user_uuid?: string,
   ): Promise<T> {
     return this.request<T>("POST", endpoint, data, params, false, user_uuid);
-  },
-
-  postImage<T>(
-    endpoint: string,
-    data: Record<string, any> = {},
-    params: Record<string, any> = {},
-    user_uuid?: string,
-  ): Promise<T> {
-    return this.request<T>("POST", endpoint, data, params, true, user_uuid);
   },
 
   patch<T>(
