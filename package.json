@@ -54,7 +54,7 @@
     "@radix-ui/react-tooltip": "^1.1.8",
     "@sentry/react": "^9.15.0",
     "@sentry/vite-plugin": "^3.3.1",
-    "@supabase/supabase-js": "^2.49.1",
+    "@supabase/supabase-js": "^2.50.0",
     "@tailwindcss/vite": "^4.0.9",
     "@vercel/analytics": "^1.5.0",
     "@vercel/node": "^5.1.14",
