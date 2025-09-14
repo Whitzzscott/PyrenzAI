@@ -44,7 +44,7 @@
     "@mui/material": "^7.0.2",
     "@sentry/react": "^9.15.0",
     "@sentry/vite-plugin": "^3.3.1",
-    "@supabase/supabase-js": "^2.49.1",
+    "@supabase/supabase-js": "^2.50.0",
     "@tailwindcss/vite": "^4.0.9",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "bowser": "^2.11.0",
